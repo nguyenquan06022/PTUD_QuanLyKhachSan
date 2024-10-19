@@ -71,6 +71,30 @@ public class TaiKhoan_dao {
 		return dsTK;
 	}
 	
+	public boolean themTaiKhoan (TaiKhoan taiKhoan) {
+		Connection con = database.getInstance().getConnection();
+	    PreparedStatement stmt = null;
+	    boolean isSuccess = false;
+	    
+	    try {
+	    	ArrayList<TaiKhoan> dsTK = danhSachTaiKhoan();
+	    		String sql = "INSERT INTO TaiKhoan(MaTaiKhoan, TenDangNhap, MatKhau, MaNV, TrangThai) VALUES (?, ?, ?, ?, ?)";
+	    		stmt = con.prepareStatement(sql);
+	    		stmt.setString(1, "TK00" + String.valueOf(dsTK.size() + 1));
+	    		stmt.setString(2, taiKhoan.getNhanVien().getMaNV());
+	    		stmt.setString(3, taiKhoan.getMatKhau());
+	    		stmt.setString(4, taiKhoan.getNhanVien().getMaNV());
+	    		stmt.setString(5, taiKhoan.getTrangThai());
+	    		int rowsInserted = stmt.executeUpdate();
+	            if (rowsInserted > 0) {
+	                isSuccess = true;
+	            }
+	    } catch (Exception e) {
+	    	e.printStackTrace();
+	    }
+	    return isSuccess;
+	}
+	
 	public TaiKhoan timTaiKhoan (String tenDN){
 		ArrayList<TaiKhoan> dsTK = danhSachTaiKhoan();
 		return dsTK.stream().filter(x -> x.getTenDN().equalsIgnoreCase(tenDN)).findFirst().orElse(null);
@@ -91,14 +115,15 @@ public class TaiKhoan_dao {
 		boolean isSuccess = false;
 		try {
 			ArrayList<TaiKhoan> dsTK = danhSachTaiKhoan();
-			if (!dsTK.contains(taiKhoan)) {
+			TaiKhoan a = dsTK.stream().filter(x -> x.getTenDN().equalsIgnoreCase(taiKhoan.getTenDN())).findFirst().orElse(null);
+			if (a == null) {
 				System.out.println("Tài khoản không tồn tại");
 			} else {
-				String updateSql = "UPDATE TaiKhoan SET MatKhau = ?, TrangThai = ? WHERE MaTaiKhoan = ?";
+				String updateSql = "UPDATE TaiKhoan SET MatKhau = ?, TrangThai = ? WHERE TenDangNhap = ?";
 		        PreparedStatement updateStmt = connection.prepareStatement(updateSql);
 		        updateStmt.setString(1, taiKhoan.getMatKhau().trim());
 		        updateStmt.setString(2, taiKhoan.getTrangThai().trim());
-		        updateStmt.setString(3, taiKhoan.getMaTK());
+		        updateStmt.setString(3, taiKhoan.getTenDN());
 		        int rowsInserted = updateStmt.executeUpdate();
 	            if (rowsInserted > 0) {
 	                isSuccess = true;

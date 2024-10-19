@@ -8,10 +8,18 @@ import java.awt.event.ActionListener;
 import javax.swing.table.DefaultTableModel; // Import DefaultTableModel
 import javax.swing.table.TableCellRenderer;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import Dao.NhanVien_dao;
+import Entity.NhanVien;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.sql.Date;
 
-public class Employee extends JPanel {
+public class Employee extends JPanel implements ActionListener, MouseListener{
     private JTextField tfTimKiem;
     private JTextField tfMaNhanVien;
     private JTextField textField_1;
@@ -21,7 +29,61 @@ public class Employee extends JPanel {
     private JTextField textField_5;
     private JTextField textField_6;
     private JTextField textField_7;
-
+	private JButton btnXacNhan;
+	private JButton btnSua;
+	private JButton btnThem;
+	private JTable table;
+	private DefaultTableModel model;
+	NhanVien_dao nhanVien_dao = new NhanVien_dao();
+	private JButton btnHuy;
+	private JButton btnTimKiem;
+	private ArrayList<NhanVien> dsNV;
+	private int luaChon = 0;
+	private int row = 0;
+	
+	public void khoaTruong() {
+        tfMaNhanVien.setEditable(false);
+        textField_1.setEditable(false);
+        textField_2.setEditable(false);
+        textField_3.setEditable(false);
+        textField_4.setEditable(false);
+        textField_5.setEditable(false);
+        textField_6.setEditable(false);
+        textField_7.setEditable(false);
+	}
+	
+	public void moTruongSua (){
+		tfMaNhanVien.setEditable(false);
+		textField_1.setEditable(true);
+        textField_2.setEditable(true);
+        textField_3.setEditable(true);
+        textField_4.setEditable(true);
+        textField_5.setEditable(true);
+        textField_6.setEditable(true);
+        textField_7.setEditable(true);
+	}
+	
+	public void themDong(NhanVien a) {
+		model.addRow(new Object[] {a.getMaNV(),
+				a.getHoTen(),
+				a.getGioiTinh()==1?"Nam":"Nữ",
+				a.getNgaySinh(),
+				a.getCCCD(),
+				a.getSoDT(),
+				a.getChucVu(),
+				a.getTrangThaiLamViec()});
+	}
+	
+	public ArrayList<NhanVien> danhSachNhanVien(){
+		return nhanVien_dao.danhSachNhanVien();
+	}
+	
+	public void hienBang() {
+		dsNV = danhSachNhanVien();
+		model.getDataVector().removeAllElements();
+		dsNV.forEach(x -> themDong(x));
+	}
+	
     public Employee() {
         setLayout(new BorderLayout(0, 0));
 
@@ -44,7 +106,7 @@ public class Employee extends JPanel {
         tfTimKiem.setPreferredSize(new Dimension(300, 40)); // Thay đổi kích thước ở đây
         control.add(tfTimKiem);
 
-        JButton btnTimKiem = new JButton("");
+        btnTimKiem = new JButton("");
         btnTimKiem.setBackground(Color.LIGHT_GRAY);
         btnTimKiem.setIcon(new ImageIcon(Employee.class.getResource("/Photos/search.png")));
         btnTimKiem.setFont(new Font("Tahoma", Font.PLAIN, 15));
@@ -59,12 +121,9 @@ public class Employee extends JPanel {
 
         // Tạo bảng với các trường đã chỉ định
         String[] columnNames = {"Mã nhân viên","Họ tên","Giới tính","Ngày sinh","CCCD","Số điện thoại","Chức vụ","Trạng thái làm việc"};
-        Object[][] data = {
-            {"NV001", "NGUYENA", "NAM", "06/02/2004", "99321","0323131","Nhân viên","Đang làm việc"}
-        }; // Dữ liệu khởi tạo cho bảng
 
-        DefaultTableModel model = new DefaultTableModel(data, columnNames);
-        JTable table = new JTable(model) {
+        model = new DefaultTableModel(columnNames, 0);
+        table = new JTable(model) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 // Không cho phép chỉnh sửa
@@ -97,7 +156,6 @@ public class Employee extends JPanel {
         panel.add(panel_6);
 
         tfMaNhanVien = new JTextField();
-        tfMaNhanVien.setEditable(false);
         tfMaNhanVien.setFont(new Font("Tahoma", Font.PLAIN, 15));
         panel_6.add(tfMaNhanVien);
         tfMaNhanVien.setColumns(10);
@@ -144,6 +202,14 @@ public class Employee extends JPanel {
         panel_8.add(textField_2);
         textField_2.setColumns(10);
 
+//        JPanel panel_8 = new JPanel();
+//        panel_2.add(panel_8);
+//
+//        // Thay JTextField bằng JComboBox
+//        JComboBox<String> cbGioiTinh = new JComboBox<>(new String[] {"Nam", "Nữ"});
+//        cbGioiTinh.setFont(new Font("Tahoma", Font.PLAIN, 15));
+//        panel_8.add(cbGioiTinh);
+        
         JPanel panel_3 = new JPanel();
         infor.add(panel_3);
         panel_3.setLayout(new GridLayout(1, 2, 0, 0));
@@ -249,12 +315,12 @@ public class Employee extends JPanel {
         JPanel panel_10 = new JPanel();
         infor.add(panel_10);
         
-        JButton btnThem = new JButton("");
+        btnThem = new JButton("");
         btnThem.setIcon(new ImageIcon(Employee.class.getResource("/Photos/plus.png")));
         btnThem.setBackground(Color.LIGHT_GRAY);
         panel_10.add(btnThem);
         
-        JButton btnSua = new JButton("");
+        btnSua = new JButton("");
         btnSua.setIcon(new ImageIcon(Employee.class.getResource("/Photos/settings.png")));
         btnSua.setBackground(Color.LIGHT_GRAY);
         panel_10.add(btnSua);
@@ -262,15 +328,23 @@ public class Employee extends JPanel {
         JPanel panel_11 = new JPanel();
         infor.add(panel_11);
         
-        JButton btnXacNhan = new JButton("Xác nhận");
+        btnXacNhan = new JButton("Xác nhận");
         btnXacNhan.setFont(new Font("Tahoma", Font.BOLD, 15));
         btnXacNhan.setBackground(Color.LIGHT_GRAY);
         panel_11.add(btnXacNhan);
         
-        JButton btnHuy = new JButton("Hủy");
+        btnHuy = new JButton("Hủy");
         btnHuy.setFont(new Font("Tahoma", Font.BOLD, 15));
         btnHuy.setBackground(Color.LIGHT_GRAY);
         panel_11.add(btnHuy);
+        btnTimKiem.addActionListener(this);
+        btnThem.addActionListener(this);
+        btnSua.addActionListener(this);
+        btnXacNhan.addActionListener(this);
+        btnHuy.addActionListener(this);
+        table.addMouseListener(this);
+        khoaTruong();
+        hienBang();
     }
 
     // Class cho ButtonRenderer (Không cần nữa vì đã bỏ cột Edit/Delete)
@@ -328,4 +402,160 @@ public class Employee extends JPanel {
             return label;
         }
     }
+    
+    public void xoaTrang() {
+    	tfMaNhanVien.setText("");
+    	textField_1.setText("");
+    	textField_2.setText("");
+    	textField_3.setText("");
+    	textField_4.setText("");
+    	textField_5.setText("");
+    	textField_6.setText("");
+    	textField_7.setText("");
+    }
+    
+    public void hienNhanVien (NhanVien a) {
+    	tfMaNhanVien.setText(a.getMaNV());
+		textField_1.setText(a.getHoTen());
+		textField_2.setText(a.getGioiTinh()==0?"Nữ":"Nam");
+		textField_3.setText(a.getNgaySinh().toString());
+		textField_4.setText(a.getCCCD());
+		textField_5.setText(a.getSoDT());
+		textField_6.setText(a.getChucVu());
+		textField_7.setText(a.getTrangThaiLamViec());
+    }
+    
+    public NhanVien taoNhanVien () {
+    	return new NhanVien("",
+    						textField_1.getText(),
+    						Integer.parseInt(textField_2.getText()),
+    						Date.valueOf(textField_3.getText()),
+    						textField_4.getText(),
+    						textField_5.getText(),
+    						textField_6.getText(),
+    						textField_7.getText());
+    }
+    
+    public NhanVien taoNhanVienSua () {
+    	return new NhanVien(tfMaNhanVien.getText(),
+				textField_1.getText(),
+				textField_2.getText().equals("Nam")?1:0,
+				Date.valueOf(textField_3.getText()),
+				textField_4.getText(),
+				textField_5.getText(),
+				textField_6.getText(),
+				textField_7.getText());
+    }
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		JButton btn= (JButton)e.getSource();
+		
+		if (btn.equals(btnTimKiem)) {
+			NhanVien nv = new NhanVien();
+			String timKiem = tfTimKiem.getText();
+			if (timKiem.isEmpty()) {
+				JOptionPane.showMessageDialog(this, "Nhập vào trường tìm kiếm");
+			} else {
+				String test = timKiem.substring(0, 2);
+				if (test.equalsIgnoreCase("NV")) {
+					nv = nhanVien_dao.getNhanVienTheoMa(timKiem);
+					model.getDataVector().removeAllElements();
+					themDong(nv);
+				} else {
+					List<NhanVien> a = nhanVien_dao.getNhanVienTheoTen(timKiem);
+					if (a != null) {
+						model.getDataVector().removeAllElements();
+						a.forEach(x -> themDong(x));
+					} else {
+						System.out.println(a);
+//						model.getDataVector().removeAllElements();
+					}
+					
+				}
+			}
+		}
+		if (btn.equals(btnThem)) {
+			xoaTrang();
+			moTruongSua();
+			luaChon  = 1;
+		}
+		if (btn.equals(btnSua)) {
+			row = table.getSelectedRow();
+			if(row>=0) {
+				moTruongSua();
+				luaChon = 2;
+			}
+			else{
+				JOptionPane.showMessageDialog(this, "Cần chọn nhân viên");
+			}
+		}
+		if (btn.equals(btnHuy)) {
+			xoaTrang();
+			khoaTruong();
+			hienBang();
+			luaChon = 0;
+			row = -1;
+		}
+		if (btn.equals(btnXacNhan)) {
+    		if (luaChon == 1) {
+    			NhanVien a = taoNhanVienSua();
+    			boolean dung = nhanVien_dao.themNhanVien(a);
+    			if (dung==true) {
+    				JOptionPane.showMessageDialog(this, "Thêm nhân viên mới thành công");
+    			} else JOptionPane.showMessageDialog(this, "Thêm nhân viên mới không thành công");
+    			hienBang();
+    		} else if (luaChon == 2) {
+    			NhanVien b = taoNhanVienSua();
+				boolean dung = nhanVien_dao.suaNhanVien(b);
+				if (dung==true) {
+    				JOptionPane.showMessageDialog(this, "Sửa nhân viên thành công");
+    			} else JOptionPane.showMessageDialog(this, "Sửa nhân viên không thành công");
+				hienBang();
+    		}
+    		
+    		xoaTrang();
+    		khoaTruong();
+    	}
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		// TODO Auto-generated method stub
+		int row = table.getSelectedRow();
+		tfMaNhanVien.setText(model.getValueAt(row, 0).toString());
+		textField_1.setText(model.getValueAt(row, 1).toString());
+		textField_2.setText(model.getValueAt(row, 2).toString());
+		textField_3.setText(model.getValueAt(row, 3).toString());
+		textField_4.setText(model.getValueAt(row, 4).toString());
+		textField_5.setText(model.getValueAt(row, 5).toString());
+		textField_6.setText(model.getValueAt(row, 6).toString());
+		textField_7.setText(model.getValueAt(row, 7).toString());
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

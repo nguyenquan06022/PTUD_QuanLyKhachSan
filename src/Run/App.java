@@ -1,6 +1,5 @@
 package Run;
 
-import Dao.TaiKhoan_dao;
 import Gui.Login;
 
 class App {

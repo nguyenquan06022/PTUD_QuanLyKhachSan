@@ -22,6 +22,8 @@ public class MainGUI extends JFrame implements ActionListener {
     private static JButton btnLogout;
     private static JButton selectedButton;
     private static JPanel body;
+    private String userName1;
+    private String role1;
 
     private JPopupMenu manageMenu;
 
@@ -108,6 +110,8 @@ public class MainGUI extends JFrame implements ActionListener {
         body.setLayout(new BorderLayout());
         body.add(new Home(),BorderLayout.CENTER);
         setVisible(true);
+        userName1 = userName;
+        role1 = role;
     }
 
     // Tạo các item cho submenu với màu sắc và hiệu ứng hover giống navbar
@@ -130,7 +134,6 @@ public class MainGUI extends JFrame implements ActionListener {
                 item.setBackground(new Color(0, 153, 255));  // Trở lại màu gốc khi không hover
             }
         });
-
         return item;
     }
 
@@ -228,7 +231,7 @@ public class MainGUI extends JFrame implements ActionListener {
             }
         } else if (o.equals(btnUser)) {
             removeBodyComponent();
-            body.add(new UserInfor(),BorderLayout.CENTER);
+            body.add(new UserInfor(userName1, role1),BorderLayout.CENTER);
         } else if (o.equals(btnHome)) {
             removeBodyComponent();
             body.add(new Home(),BorderLayout.CENTER);
