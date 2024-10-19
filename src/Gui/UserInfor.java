@@ -3,6 +3,11 @@ package Gui;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.border.EmptyBorder;
+
+import Dao.NhanVien_dao;
+import Dao.TaiKhoan_dao;
+import Entity.TaiKhoan;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
@@ -22,8 +27,18 @@ public class UserInfor extends JPanel implements ActionListener {
     private JTextField tfTenNhanVien;
     private JTextField textField_2;
     private JButton btnDoiMatKhau;
+    private TaiKhoan_dao taiKhoan_dao = new TaiKhoan_dao();
+    private String userName1;
+    private NhanVien_dao nhanVien_dao = new NhanVien_dao();
+    private String role1;
 
-    public UserInfor() {
+    public void khoaTruong () {
+    	tfTenTaiKhoan.setEditable(false);
+    	tfTenNhanVien.setEditable(false);
+    	textField_2.setEditable(false);
+    }
+    
+    public UserInfor(String userName, String role) {
         setLayout(new BorderLayout(0, 0));
 
         JPanel header = new JPanel();
@@ -100,6 +115,13 @@ public class UserInfor extends JPanel implements ActionListener {
         btnDoiMatKhau.setBackground(new Color(0, 153, 255));
         panelDoiMatKhau.add(btnDoiMatKhau);
         btnDoiMatKhau.addActionListener(this);
+        TaiKhoan a = taiKhoan_dao.timTaiKhoan(userName);
+        khoaTruong();
+        userName1 = userName;
+        role1 = role;
+        tfTenTaiKhoan.setText(a.getTenDN());
+        tfTenNhanVien.setText(a.getNhanVien().getHoTen());
+        textField_2.setText(a.getNhanVien().getSoDT());
     }
 
     @Override
@@ -163,11 +185,13 @@ public class UserInfor extends JPanel implements ActionListener {
 
     // Phương thức kiểm tra mật khẩu hiện tại (giả định)
     private boolean validateCurrentPassword(String currentPassword) {
-        return "matkhaucu".equals(currentPassword); // Giả định mật khẩu cũ là "matkhaucu"
+    	return taiKhoan_dao.timTaiKhoan(userName1).getMatKhau().equals(currentPassword); // Giả định mật khẩu cũ là "matkhaucu"
     }
 
     // Phương thức để đổi mật khẩu (giả định)
     private void changePassword(String newPassword) {
+    	TaiKhoan a = new TaiKhoan("", userName1, newPassword, nhanVien_dao.getNhanVienTheoMa(userName1), "Đang sử dụng");
+    	taiKhoan_dao.suaTaiKhoan(a);
         System.out.println("Mật khẩu mới đã được thay đổi thành: " + newPassword);
     }
 }

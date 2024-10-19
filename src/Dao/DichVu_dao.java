@@ -26,7 +26,7 @@ public class DichVu_dao {
 		}
 	}
 	
-	public static ArrayList<DichVu> danhSachDichVu(){
+	public ArrayList<DichVu> danhSachDichVu(){
 		khoiTao();
 		ArrayList<DichVu> dsDV = new ArrayList<DichVu>();
 		try {
@@ -53,7 +53,7 @@ public class DichVu_dao {
 		return dsDV;
 	}
 	
-	public static boolean themDichVu (DichVu dichVu) {
+	public boolean themDichVu (DichVu dichVu) {
 		khoiTao();
 		Connection con = database.getInstance().getConnection();
 	    PreparedStatement stmt = null;
@@ -81,7 +81,7 @@ public class DichVu_dao {
 	    return isSuccess;
 	}
 	
-	public static List<DichVu> getDichVuTheoTen(String hoTen) {
+	public List<DichVu> getDichVuTheoTen(String hoTen) {
 		List<DichVu> dv = null;
 	    try {
 			ArrayList<DichVu> dsDV = danhSachDichVu();
@@ -92,7 +92,7 @@ public class DichVu_dao {
 	    return dv;
 	}
 	
-	public static DichVu getDichVuTheoMa(String maDV) {
+	public DichVu getDichVuTheoMa(String maDV) {
 		DichVu dv = null;
 		try {
 			ArrayList<DichVu> dsDV = danhSachDichVu();
@@ -103,7 +103,7 @@ public class DichVu_dao {
 		return dv;
 	}
 	
-	public static boolean suaDichVu(DichVu dichVu) {
+	public boolean suaDichVu(DichVu dichVu) {
 		khoiTao();
 		Connection connection = database.getInstance().getConnection();
 		boolean isSuccess = false;

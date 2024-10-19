@@ -8,17 +8,102 @@ import java.awt.event.ActionListener;
 import javax.swing.table.DefaultTableModel; // Import DefaultTableModel
 import javax.swing.table.TableCellRenderer;
 
+import Dao.NhanVien_dao;
+import Dao.TaiKhoan_dao;
+import Entity.TaiKhoan;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Account extends JPanel {
+public class Account extends JPanel implements ActionListener, MouseListener {
     private JTextField tfTimKiem;
     private JTextField textField;
     private JTextField textField_1;
     private JTextField textField_2;
     private JTextField textField_3;
     private JTextField textField_4;
+    private ArrayList<TaiKhoan> dsTK;
+    private NhanVien_dao nhanVien_dao = new NhanVien_dao();
+    private TaiKhoan_dao taiKhoan_dao = new TaiKhoan_dao();
+	private JTable table;
+	private DefaultTableModel model;
+	private JButton btnTimKiem;
+	private JButton btnSua;
+	private JButton btnXacNhan;
+	private JButton btnHuy;
+	private JButton btnThem;
+	private int row = -1;
+	private int luaChon = 0;
+	
+	public ArrayList<TaiKhoan> danhSachTaiKhoan(){
+		return taiKhoan_dao.danhSachTaiKhoan();
+	}
+	
+	public void khoaTruong() {
+        textField.setEditable(false);
+        textField_1.setEditable(false);
+        textField_2.setEditable(false);
+        textField_3.setEditable(false);
+        textField_4.setEditable(false);
+	}
+	
+	public void moTruongThem () {
+		textField.setEditable(false);
+		textField_1.setEditable(false);
+        textField_2.setEditable(true);
+        textField_3.setEditable(true);
+        textField_4.setEditable(true);
+	}
+	
+	public void moTruongSua (){
+		textField.setEditable(false);
+		textField_1.setEditable(false);
+        textField_2.setEditable(true);
+        textField_3.setEditable(true);
+        textField_4.setEditable(false);
+	}
 
+    public void hienBang() {
+    	dsTK = danhSachTaiKhoan();
+    	dsTK.forEach(x -> themDong(x));
+    }
+    
+    public void themDong(TaiKhoan a) {
+		model.addRow(new Object[] {a.getMaTK(),
+				a.getTenDN(),
+				a.getMatKhau(),
+				a.getNhanVien().getMaNV(),
+				a.getTrangThai()});
+	}
+    
+    public void xoaTrang() {
+    	textField.setText("");
+    	textField_1.setText("");
+    	textField_2.setText("");
+    	textField_3.setText("");
+    	textField_4.setText("");
+    }
+    
+    public void hienTaiKhoan (TaiKhoan a) {
+    	textField.setText(a.getMaTK());
+		textField_1.setText(a.getTenDN());
+		textField_2.setText(a.getMatKhau());
+		textField_3.setText(a.getNhanVien().getMaNV());
+		textField_4.setText(a.getTrangThai());
+    }
+    
+    public TaiKhoan taoTaiKhoan() {
+    	return new TaiKhoan(textField.getText(),
+				textField_1.getText(),
+				textField_2.getText(),
+				nhanVien_dao.getNhanVienTheoMa(textField_4.getText()),
+				textField_3.getText());
+    }
+    
     public Account() {
         setLayout(new BorderLayout(0, 0));
 
@@ -41,7 +126,7 @@ public class Account extends JPanel {
         tfTimKiem.setPreferredSize(new Dimension(300, 40)); // Thay đổi kích thước ở đây
         control.add(tfTimKiem);
 
-        JButton btnTimKiem = new JButton("");
+        btnTimKiem = new JButton("");
         btnTimKiem.setBackground(Color.LIGHT_GRAY);
         btnTimKiem.setIcon(new ImageIcon(Account.class.getResource("/Photos/search.png")));
         btnTimKiem.setFont(new Font("Tahoma", Font.PLAIN, 15));
@@ -56,16 +141,10 @@ public class Account extends JPanel {
 
         // Tạo bảng với các trường đã chỉ định
         String[] columnNames = {"Mã Tài Khoản", "Tên Đăng Nhập", "Mật Khẩu", "Mã NV", "Trạng Thái"};
-        Object[][] data = {
-            {"001", "user1", "pass1", "NV001", "Active"},
-            {"002", "user2", "pass2", "NV002", "Inactive"},
-            {"003", "user3", "pass3", "NV003", "Active"},
-            {"004", "user4", "pass4", "NV004", "Inactive"},
-            {"005", "user5", "pass5", "NV005", "Active"}
-        }; // Dữ liệu khởi tạo cho bảng
+        
 
-        DefaultTableModel model = new DefaultTableModel(data, columnNames);
-        JTable table = new JTable(model) {
+        model = new DefaultTableModel(columnNames, 0);
+        table = new JTable(model) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 // Không cho phép chỉnh sửa
@@ -193,12 +272,12 @@ public class Account extends JPanel {
         JPanel panel_10 = new JPanel();
         infor.add(panel_10);
         
-        JButton btnThem = new JButton("");
+        btnThem = new JButton("");
         btnThem.setBackground(Color.LIGHT_GRAY);
         btnThem.setIcon(new ImageIcon(Account.class.getResource("/Photos/plus.png")));
         panel_10.add(btnThem);
         
-        JButton btnSua = new JButton("");
+        btnSua = new JButton("");
         btnSua.setBackground(Color.LIGHT_GRAY);
         btnSua.setIcon(new ImageIcon(Account.class.getResource("/Photos/settings.png")));
         panel_10.add(btnSua);
@@ -206,15 +285,23 @@ public class Account extends JPanel {
         JPanel panel_11 = new JPanel();
         infor.add(panel_11);
         
-        JButton btnXacNhan = new JButton("Xác nhận");
+        btnXacNhan = new JButton("Xác nhận");
         btnXacNhan.setBackground(Color.LIGHT_GRAY);
         btnXacNhan.setFont(new Font("Tahoma", Font.BOLD, 15));
         panel_11.add(btnXacNhan);
         
-        JButton btnHuy = new JButton("Hủy");
+        btnHuy = new JButton("Hủy");
         btnHuy.setBackground(Color.LIGHT_GRAY);
         btnHuy.setFont(new Font("Tahoma", Font.BOLD, 15));
         panel_11.add(btnHuy);
+        btnTimKiem.addActionListener(this);
+        btnThem.addActionListener(this);
+        btnSua.addActionListener(this);
+        btnXacNhan.addActionListener(this);
+        btnHuy.addActionListener(this);
+        table.addMouseListener(this);
+        hienBang();
+        khoaTruong();
     }
 
     // Class cho ButtonRenderer (Không cần nữa vì đã bỏ cột Edit/Delete)
@@ -272,4 +359,102 @@ public class Account extends JPanel {
             return label;
         }
     }
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		// TODO Auto-generated method stub
+		int row = table.getSelectedRow();
+		textField.setText(model.getValueAt(row, 0).toString());
+		textField_1.setText(model.getValueAt(row, 1).toString());
+		textField_2.setText(model.getValueAt(row, 2).toString());
+		textField_4.setText(model.getValueAt(row, 3).toString());
+		textField_3.setText(model.getValueAt(row, 4).toString());
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		JButton btn= (JButton)e.getSource();
+		
+		if (btn.equals(btnTimKiem)) {
+			TaiKhoan tk = new TaiKhoan();
+			String timKiem = tfTimKiem.getText();
+			if (timKiem.isEmpty()) {
+				JOptionPane.showMessageDialog(this, "Nhập vào trường tìm kiếm");
+			} else {
+				tk = taiKhoan_dao.timTaiKhoan(timKiem);
+				model.getDataVector().removeAllElements();
+				themDong(tk);
+			}
+		}
+		if (btn.equals(btnThem)) {
+			xoaTrang();
+			moTruongThem();
+			luaChon = 1;
+		}
+		if (btn.equals(btnSua)) {
+			row  = table.getSelectedRow();
+			if(row>=0) {
+				moTruongSua();
+				luaChon = 2;
+			}
+			else{
+				JOptionPane.showMessageDialog(this, "Cần chọn nhân viên");
+			}
+		}
+		if (btn.equals(btnHuy)) {
+			model.getDataVector().removeAllElements();
+			xoaTrang();
+			khoaTruong();
+			hienBang();
+			luaChon = 0;
+			row = -1;
+		}
+		if (btn.equals(btnXacNhan)) {
+    		if (luaChon == 1) {
+    			TaiKhoan a = taoTaiKhoan();
+    			boolean dung = taiKhoan_dao.themTaiKhoan(a);
+    			if (dung==true) {
+    				JOptionPane.showMessageDialog(this, "Thêm tài khoản mới thành công");
+    			} else JOptionPane.showMessageDialog(this, "Thêm tài khoản mới không thành công");
+    			model.getDataVector().removeAllElements();
+    			hienBang();
+    		} else if (luaChon == 2) {
+    			TaiKhoan b = taoTaiKhoan();
+				boolean dung = taiKhoan_dao.suaTaiKhoan(b);
+				if (dung==true) {
+    				JOptionPane.showMessageDialog(this, "Sửa tài khoản thành công");
+    			} else JOptionPane.showMessageDialog(this, "Sửa tài khoản không thành công");
+				model.getDataVector().removeAllElements();
+				hienBang();
+    		}
+    		
+    		xoaTrang();
+    		khoaTruong();
+    	}
+	}
 }

@@ -70,7 +70,7 @@ public class NhanVien_dao {
 	    		stmt.setString(1, "NV00" + String.valueOf(dsNV.size() + 1));
 	    		stmt.setString(2, nhanVien.getHoTen());
 	    		stmt.setInt(3, nhanVien.getGioiTinh());
-	    		//stmt.setDate(4, nhanVien.getNgaySinh());
+	    		stmt.setDate(4, nhanVien.getNgaySinh());
 	    		stmt.setString(5, nhanVien.getCCCD());
 	    		stmt.setString(6, nhanVien.getSoDT());
 	    		stmt.setString(7, nhanVien.getChucVu());
@@ -121,7 +121,7 @@ public class NhanVien_dao {
 		        PreparedStatement updateStmt = connection.prepareStatement(updateSql);
 		        updateStmt.setString(1, nhanVien.getHoTen());
 		        updateStmt.setInt(2, nhanVien.getGioiTinh());
-		        //updateStmt.setDate(3, nhanVien.getNgaySinh());
+		        updateStmt.setDate(3, nhanVien.getNgaySinh());
 		        updateStmt.setString(4, nhanVien.getCCCD());
 		        updateStmt.setString(5, nhanVien.getSoDT());
 		        updateStmt.setString(6, nhanVien.getChucVu());

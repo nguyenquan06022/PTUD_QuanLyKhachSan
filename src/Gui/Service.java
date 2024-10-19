@@ -8,15 +8,90 @@ import java.awt.event.ActionListener;
 import javax.swing.table.DefaultTableModel; // Import DefaultTableModel
 import javax.swing.table.TableCellRenderer;
 
+import Dao.DichVu_dao;
+import Entity.DichVu;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Service extends JPanel {
+public class Service extends JPanel implements ActionListener, MouseListener{
     private JTextField tfTimKiem;
     private JTextField tfMaDichVu;
     private JTextField tfTenDichVu;
     private JTextField tfDonGia;
     private JTextField tfTrangThai;
+    private DichVu_dao dichVu_dao = new DichVu_dao();
+	private ArrayList<DichVu> dsDV;
+	private DefaultTableModel model;
+	private JTable table;
+	private JButton btnThem;
+	private JButton btnSua;
+	private JButton btnXacNhan;
+	private JButton btnHuy;
+	private JButton btnTimKiem;
+	private int luaChon;
+	private int row;
+    
+    public ArrayList<DichVu> danhSachDichVu(){
+		return dichVu_dao.danhSachDichVu();
+	}
+	
+	public void khoaTruong() {
+        tfMaDichVu.setEditable(false);
+        tfTenDichVu.setEditable(false);
+        tfDonGia.setEditable(false);
+        tfTrangThai.setEditable(false);
+	}
+	
+	public void moTruongThem () {
+		tfMaDichVu.setEditable(false);
+        tfTenDichVu.setEditable(true);
+        tfDonGia.setEditable(true);
+        tfTrangThai.setEditable(false);
+	}
+	
+	public void moTruongSua (){
+		tfMaDichVu.setEditable(false);
+        tfTenDichVu.setEditable(true);
+        tfDonGia.setEditable(true);
+        tfTrangThai.setEditable(true);
+	}
+
+    public void hienBang() {
+    	dsDV = danhSachDichVu();
+    	dsDV.forEach(x -> themDong(x));
+    }
+    
+    public void themDong(DichVu a) {
+		model.addRow(new Object[] {a.getMaDV(),
+									a.getTenDV(),
+									a.getDonGia(),
+									a.getTrangThaiDichVu()});
+	}
+    
+    public void xoaTrang() {
+    	tfMaDichVu.setText("");
+        tfTenDichVu.setText("");
+        tfDonGia.setText("");
+        tfTrangThai.setText("");
+    }
+    
+    public void hienDichVu (DichVu a) {
+    	tfMaDichVu.setText(a.getMaDV());
+        tfTenDichVu.setText(a.getTenDV());
+        tfDonGia.setText(String.valueOf(a.getDonGia()));
+        tfTrangThai.setText(a.getTrangThaiDichVu());
+    }
+    
+    public DichVu taoDichVu() {
+    	return new DichVu(tfMaDichVu.getText(),
+    						tfTenDichVu.getText(),
+    						Double.parseDouble(tfDonGia.getText()),
+    						tfTrangThai.getText());
+    }
 
     public Service() {
         setLayout(new BorderLayout(0, 0));
@@ -40,7 +115,7 @@ public class Service extends JPanel {
         tfTimKiem.setPreferredSize(new Dimension(300, 40)); // Thay đổi kích thước ở đây
         control.add(tfTimKiem);
 
-        JButton btnTimKiem = new JButton("");
+        btnTimKiem = new JButton("");
         btnTimKiem.setBackground(Color.LIGHT_GRAY);
         btnTimKiem.setIcon(new ImageIcon(Service.class.getResource("/Photos/search.png")));
         btnTimKiem.setFont(new Font("Tahoma", Font.PLAIN, 15));
@@ -55,12 +130,9 @@ public class Service extends JPanel {
 
         // Tạo bảng với các trường đã chỉ định
         String[] columnNames = {"Mã dịch vụ","Tên dịch vụ","Đơn giá","Trạng thái"};
-        Object[][] data = {
-            {"001", "Mì gói", "3000", "Đang bán"}
-        }; // Dữ liệu khởi tạo cho bảng
 
-        DefaultTableModel model = new DefaultTableModel(data, columnNames);
-        JTable table = new JTable(model) {
+        model = new DefaultTableModel(columnNames, 0);
+        table = new JTable(model) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 // Không cho phép chỉnh sửa
@@ -152,12 +224,12 @@ public class Service extends JPanel {
         JPanel panel_10 = new JPanel();
         infor.add(panel_10);
         
-        JButton btnThem = new JButton("");
+        btnThem = new JButton("");
         btnThem.setBackground(Color.LIGHT_GRAY);
         btnThem.setIcon(new ImageIcon(Service.class.getResource("/Photos/plus.png")));
         panel_10.add(btnThem);
         
-        JButton btnSua = new JButton("");
+        btnSua = new JButton("");
         btnSua.setBackground(Color.LIGHT_GRAY);
         btnSua.setIcon(new ImageIcon(Service.class.getResource("/Photos/settings.png")));
         panel_10.add(btnSua);
@@ -165,15 +237,23 @@ public class Service extends JPanel {
         JPanel panel_11 = new JPanel();
         infor.add(panel_11);
         
-        JButton btnXacNhan = new JButton("Xác nhận");
+        btnXacNhan = new JButton("Xác nhận");
         btnXacNhan.setBackground(Color.LIGHT_GRAY);
         btnXacNhan.setFont(new Font("Tahoma", Font.BOLD, 15));
         panel_11.add(btnXacNhan);
         
-        JButton btnHuy = new JButton("Hủy");
+        btnHuy = new JButton("Hủy");
         btnHuy.setBackground(Color.LIGHT_GRAY);
         btnHuy.setFont(new Font("Tahoma", Font.BOLD, 15));
         panel_11.add(btnHuy);
+        btnTimKiem.addActionListener(this);
+        btnThem.addActionListener(this);
+        btnSua.addActionListener(this);
+        btnXacNhan.addActionListener(this);
+        btnHuy.addActionListener(this);
+        table.addMouseListener(this);
+        khoaTruong();
+        hienBang();
     }
 
     // Class cho ButtonRenderer (Không cần nữa vì đã bỏ cột Edit/Delete)
@@ -231,4 +311,101 @@ public class Service extends JPanel {
             return label;
         }
     }
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		// TODO Auto-generated method stub
+		int row = table.getSelectedRow();
+		tfMaDichVu.setText(model.getValueAt(row, 0).toString());
+		tfTenDichVu.setText(model.getValueAt(row, 1).toString());
+		tfDonGia.setText(model.getValueAt(row, 2).toString());
+		tfTrangThai.setText(model.getValueAt(row, 3).toString());
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		JButton btn= (JButton)e.getSource();
+		
+		if (btn.equals(btnTimKiem)) {
+			String timKiem = tfTimKiem.getText();
+			if (timKiem.isEmpty()) {
+				JOptionPane.showMessageDialog(this, "Nhập vào trường tìm kiếm");
+			} else {
+				List<DichVu> dv  = dichVu_dao.getDichVuTheoTen(timKiem);
+				model.getDataVector().removeAllElements();
+				dv.forEach(x -> themDong(x));
+			}
+		}
+		if (btn.equals(btnThem)) {
+			xoaTrang();
+			moTruongThem();
+			tfTrangThai.setText("Đang sử dụng");
+			luaChon = 1;
+		}
+		if (btn.equals(btnSua)) {
+			row  = table.getSelectedRow();
+			if(row>=0) {
+				moTruongSua();
+				luaChon = 2;
+			}
+			else{
+				JOptionPane.showMessageDialog(this, "Cần chọn nhân viên");
+			}
+		}
+		if (btn.equals(btnHuy)) {
+			model.getDataVector().removeAllElements();
+			xoaTrang();
+			khoaTruong();
+			hienBang();
+			luaChon = 0;
+			row = -1;
+		}
+		if (btn.equals(btnXacNhan)) {
+    		if (luaChon == 1) {
+    			DichVu a = taoDichVu();
+    			boolean dung = dichVu_dao.themDichVu(a);
+    			if (dung==true) {
+    				JOptionPane.showMessageDialog(this, "Thêm dịch vụ mới thành công");
+    			} else JOptionPane.showMessageDialog(this, "Thêm dịch vụ mới không thành công");
+    			model.getDataVector().removeAllElements();
+    			hienBang();
+    		} else if (luaChon == 2) {
+    			DichVu b = taoDichVu();
+				boolean dung = dichVu_dao.suaDichVu(b);
+				if (dung==true) {
+    				JOptionPane.showMessageDialog(this, "Sửa dịch vụ thành công");
+    			} else JOptionPane.showMessageDialog(this, "Sửa dịch vụ không thành công");
+				model.getDataVector().removeAllElements();
+				hienBang();
+    		}
+    		
+    		xoaTrang();
+    		khoaTruong();
+    	}
+	}
 }
