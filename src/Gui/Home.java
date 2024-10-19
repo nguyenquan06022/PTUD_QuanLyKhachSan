@@ -5,8 +5,10 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import ConnectDB.database;
+import Dao.LoaiPhong_dao;
 import Dao.PhieuDatPhong_dao;
 import Dao.Phong_dao;
+import Entity.LoaiPhong;
 import Entity.PhieuDatPhong;
 import Entity.Phong;
 
@@ -19,9 +21,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class Home extends JPanel {
-    
+    private LoaiPhong_dao loaiPhongDao = new LoaiPhong_dao();
     private Phong_dao phongDao = new Phong_dao();
     private PhieuDatPhong_dao phieuDatPhongDao = new PhieuDatPhong_dao();
+    private JPanel itemPanel = new JPanel();
     public Home() {
         
         // Kết nối cơ sở dữ liệu
@@ -93,9 +96,10 @@ public class Home extends JPanel {
         
         JComboBox<String> cbbLoaiPhong = new JComboBox<>();
         cbbLoaiPhong.addItem("Tất Cả");
-        cbbLoaiPhong.addItem("Phòng đơn");
-        cbbLoaiPhong.addItem("Phòng đôi");
-        cbbLoaiPhong.addItem("Phòng VIP");
+        ArrayList<LoaiPhong> dslp = loaiPhongDao.danhSachLoaiPhong();
+        dslp.forEach(item-> {
+        	cbbLoaiPhong.addItem(item.getTenLoaiPhong());
+        });
         panel_6.add(cbbLoaiPhong);
         
         // Lầu
@@ -106,7 +110,7 @@ public class Home extends JPanel {
         JPanel panel_10 = new JPanel();
         panel_4.add(panel_10);
         
-        JLabel lbLau = new JLabel("Lầu");
+        JLabel lbLau = new JLabel("Tầng");
         panel_10.add(lbLau);
         lbLau.setFont(new Font("Tahoma", Font.BOLD, 15));
         
@@ -115,9 +119,14 @@ public class Home extends JPanel {
         
         JComboBox<String> cbbLau = new JComboBox<>();
         cbbLau.addItem("Tất Cả");
-        cbbLau.addItem("Lầu 1");
-        cbbLau.addItem("Lầu 2");
-        cbbLau.addItem("Lầu 3");
+        ArrayList<Phong> dsPhong = phongDao.danhSachPhong();
+        dsPhong.forEach(item -> {
+        	ArrayList<String> dsTang = new ArrayList<>();
+        	if(!dsTang.contains(item.getTang())) {
+        		dsTang.add(item.getTang());
+        		cbbLau.addItem(item.getTang());
+        	}
+        });
         panel_7.add(cbbLau);
 
         // Thêm các ItemListener cho các JComboBox
@@ -129,22 +138,67 @@ public class Home extends JPanel {
                     String trangThai = (String) cbbTrangThai.getSelectedItem();
                     String loaiPhong = (String) cbbLoaiPhong.getSelectedItem();
                     String lau = (String) cbbLau.getSelectedItem();
-                    
-                    // In ra giá trị
-                    System.out.println("Trạng Thái: " + trangThai);
-                    System.out.println("Loại Phòng: " + loaiPhong);
-                    System.out.println("Lầu: " + lau);
-                    System.out.println("---------------------");
+
+                    // Xóa các item cũ
+                    itemPanel.removeAll();
+
+                    // Lọc danh sách phòng theo các tiêu chí
+                    dsPhong.stream()
+                        .filter(item -> (trangThai.equals("Tất Cả") || item.getTrangThai().equals(trangThai)))
+                        .filter(item -> (loaiPhong.equals("Tất Cả") || item.getLoaiPhong().getTenLoaiPhong().equals(loaiPhong)))
+                        .filter(item -> (lau.equals("Tất Cả") || item.getTang().equals(lau)))
+                        .forEach(item -> {
+                            String maPhong = item.getMaPhong();
+                            String tang = item.getTang();
+                            String trangThaiPhong = item.getTrangThai();
+                            String loaiPhongPhong = item.getLoaiPhong().getTenLoaiPhong();
+                            String tenKhachHang = "";
+                            String thoiGianConLai = "";
+
+                            if (trangThaiPhong.equals("Đã đặt")) {
+                            	PhieuDatPhong phieuDatPhong = phieuDatPhongDao.getPhieuDatPhongTheoMaPhong(maPhong, "Chưa thanh toán");
+                                tenKhachHang = phieuDatPhong.getKhachHang().getTenKH();
+                                String targetTimeStr = phieuDatPhong.getThoiGianTraPhong().toString();
+                                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
+                                LocalDateTime targetTime = LocalDateTime.parse(targetTimeStr, formatter);
+                                LocalDateTime now = LocalDateTime.now();
+                                Duration duration = Duration.between(now, targetTime);
+                                long days = duration.toDays();
+                                long hours = duration.toHours() % 24;
+                                long minutes = duration.toMinutes() % 60;
+                                thoiGianConLai = days + " Ngày " + hours + " Giờ " + minutes + " Phút "; 
+                            } else if (trangThaiPhong.equals("Đang thuê")) {
+                            	PhieuDatPhong phieuDatPhong = phieuDatPhongDao.getPhieuDatPhongTheoMaPhong(maPhong, "Đã thanh toán");
+                                tenKhachHang = phieuDatPhong.getKhachHang().getTenKH();
+                                String targetTimeStr = phieuDatPhong.getThoiGianTraPhong().toString();
+                                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
+                                LocalDateTime targetTime = LocalDateTime.parse(targetTimeStr, formatter);
+                                LocalDateTime now = LocalDateTime.now();
+                                Duration duration = Duration.between(now, targetTime);
+                                long days = duration.toDays();
+                                long hours = duration.toHours() % 24;
+                                long minutes = duration.toMinutes() % 60;
+                                thoiGianConLai = days + " Ngày " + hours + " Giờ " + minutes + " Phút "; 
+                            }
+
+                            // Tạo itemPhong và thêm vào panel
+                            itemPhong itemphong = new itemPhong(maPhong, tang, trangThaiPhong, tenKhachHang, loaiPhongPhong, thoiGianConLai);
+                            itemPanel.add(itemphong);
+                        });
+
+                    // Cập nhật lại layout sau khi thêm item
+                    itemPanel.revalidate();
+                    itemPanel.repaint();
                 }
             }
         };
+
 
         // Gán listener cho từng JComboBox
         cbbTrangThai.addItemListener(comboBoxListener);
         cbbLoaiPhong.addItemListener(comboBoxListener);
         cbbLau.addItemListener(comboBoxListener);
-
-        // Tạo panel chính
+//        Tạo panel chính
         JPanel main = new JPanel();
         main.setBackground(new Color(255, 255, 255));
         main.setBorder(new LineBorder(new Color(0, 0, 0)));
@@ -154,10 +208,8 @@ public class Home extends JPanel {
         JScrollPane scrollPane = new JScrollPane();
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         
-        JPanel itemPanel = new JPanel();
         itemPanel.setBackground(SystemColor.menu);
         
-        ArrayList<Phong> dsPhong = phongDao.danhSachPhong();
         int row = dsPhong.size() / 3;
         if (dsPhong.size() % 3 != 0) row += 1;
 
@@ -168,8 +220,8 @@ public class Home extends JPanel {
             String loaiPhong = item.getLoaiPhong().getTenLoaiPhong();
             String tenKhachHang = "";
             String thoiGianConLai = "";
-            if (item.getTrangThai().equals("Da Dat")) {
-                PhieuDatPhong phieuDatPhong = phieuDatPhongDao.getPhieuDatPhongTheoMaPhong(maPhong, "Chua thanh toan");
+            if (item.getTrangThai().equals("Đã đặt")) {
+                PhieuDatPhong phieuDatPhong = phieuDatPhongDao.getPhieuDatPhongTheoMaPhong(maPhong, "Chưa thanh toán");
                 tenKhachHang = phieuDatPhong.getKhachHang().getTenKH();
                 String targetTimeStr = phieuDatPhong.getThoiGianTraPhong().toString();
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
@@ -180,8 +232,8 @@ public class Home extends JPanel {
                 long hours = duration.toHours() % 24;
                 long minutes = duration.toMinutes() % 60;
                 thoiGianConLai = days + " Ngày " + hours + " Giờ " + minutes + " Phút "; 
-            } else if (item.getTrangThai().equals("Dang Thue")) {
-                PhieuDatPhong phieuDatPhong = phieuDatPhongDao.getPhieuDatPhongTheoMaPhong(maPhong, "Da thanh toan");
+            } else if (item.getTrangThai().equals("Đang thuê")) {
+                PhieuDatPhong phieuDatPhong = phieuDatPhongDao.getPhieuDatPhongTheoMaPhong(maPhong, "Đã thanh toán");
                 tenKhachHang = phieuDatPhong.getKhachHang().getTenKH();
                 String targetTimeStr = phieuDatPhong.getThoiGianTraPhong().toString();
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
@@ -198,7 +250,7 @@ public class Home extends JPanel {
         });
         
         scrollPane.setViewportView(itemPanel);
-        itemPanel.setLayout(new GridLayout(3, row, 10, 10));
+        itemPanel.setLayout(new GridLayout(row, 3, 10, 10));
         
         main.add(scrollPane, BorderLayout.CENTER);
     }

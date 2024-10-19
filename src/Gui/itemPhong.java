@@ -5,22 +5,17 @@ import javax.swing.border.EmptyBorder;
 
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
-//extends RoundedPanel
+
 public class itemPhong extends RoundedPanel{
-	// Tang, mã phòng, trạng thái, khách hàng, loại phòng, thoi gian tra
     public itemPhong(String maPhong ,String tang, String trangThai, String tenKhachHang, String loaiPhong, String thoiGianConLai) {
-    	//setBackground(new Color(153, 255, 153)); lục
-    	// đen
-    	//setBackground(new Color(0, 153, 255)); xanh
-    	// trắng
     	
         super(30);
     	Color colortext = Color.black;
         Color colorbg = SystemColor.activeCaptionBorder;
-        if(trangThai.equals("Da Dat")) {
+        if(trangThai.equals("Đã đặt")) {
         	colortext = Color.white;
             colorbg = new Color(0, 153, 255);
-        }else if(trangThai.equals("Dang Thue")) {
+        }else if(trangThai.equals("Đang thuê")) {
         	colortext = Color.black;
             colorbg = new Color(153, 255, 153);
         }

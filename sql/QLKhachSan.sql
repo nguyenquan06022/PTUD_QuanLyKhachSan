@@ -112,41 +112,41 @@ CREATE TABLE ChiTietHoaDonDichVu (
 -- Chèn dữ liệu mẫu vào bảng NhanVien
 INSERT INTO NhanVien (MaNV, HoTen, GioiTinh, NgaySinh, CCCD, SDT, ChucVu, TrangThaiLamViec)
 VALUES 
-('NV001', 'Nguyen Van A', 1, '1990-01-15', '123456789012', '0901234567', 'Quan Ly','Dang lam viec'),
-('NV002', 'Tran Thi B', 0, '1992-05-20', '234567890123', '0912345678', 'Le Tan','Dang lam viec');
+('NV001', N'Nguyễn Văn A', 1, '1990-01-15', '123456789012', '0901234567', N'Quản Lý','Đang làm việc'),
+('NV002', N'Trần Thị B', 0, '1992-05-20', '234567890123', '0912345678', N'Lễ Tân','Đang làm việc');
 
 -- Chèn dữ liệu mẫu vào bảng TaiKhoan
 INSERT INTO TaiKhoan (MaTaiKhoan, TenDangNhap, MatKhau, MaNV, TrangThai)
 VALUES 
-('TK001', 'NV001', 'pass123', 'NV001', 'Dang su dung'),
-('TK002', 'NV002', 'pass456', 'NV002', 'Dang su dung');
+('TK001', 'NV001', 'pass123', 'NV001', N'Đang sử dụng'),
+('TK002', 'NV002', 'pass456', 'NV002', N'Đang sử dụng');
 
 -- Chèn dữ liệu mẫu vào bảng KhachHang
 INSERT INTO KhachHang (MaKH, HoTen, SDT, GioiTinh, QuocTich, DiemKhuyenMai)
 VALUES 
-('KH001', 'Pham Thanh D', '0931234567', 1, 'Viet Nam', 100),
-('KH002', 'Nguyen Thi E', '0941234567', 0, 'Viet Nam', 150);
+('KH001', N'Phạm Thành D', '0931234567', 1, N'Việt Nam', 100),
+('KH002', N'Nguyễn Thị E', '0941234567', 0, N'Việt Nam', 150);
 
 -- Chèn dữ liệu mẫu vào bảng LoaiPhong
 INSERT INTO LoaiPhong (MaLP, TenLP, GiaGioDau, GiaGioTiepTheo, GiaQuaDem, GiaCaNgay)
 VALUES 
-('LP001', 'Phong don', 200000, 150000, 500000, 800000),
-('LP002', 'Phong doi', 300000, 200000, 700000, 1000000);
+('LP001', N'Phòng đơn', 200000, 150000, 500000, 800000),
+('LP002', N'Phòng đôi', 300000, 200000, 700000, 1000000);
 
 -- Chèn dữ liệu mẫu vào bảng Phong
 INSERT INTO Phong (MaPhong, TrangThai, Tang, MaLP)
 VALUES 
-('P101', 'Trong', 'Tang 1', 'LP001'),
-('P102', 'Trong', 'Tang 1', 'LP001'),
-('P201', 'Trong', 'Tang 2', 'LP002'),
-('P202', 'Da Dat', 'Tang 2', 'LP002');
+('P101', N'Trống', N'Tầng 1', 'LP001'),
+('P102', N'Trống', N'Tầng 1', 'LP001'),
+('P201', N'Trống', N'Tầng 2', 'LP002'),
+('P202', N'Đã đặt', N'Tầng 2', 'LP002');
 
 -- Chèn dữ liệu mẫu vào bảng DichVu
 INSERT INTO DichVu (MaDichVu, TenDichVu, DonGia, TrangThai)
 VALUES 
-('DV001', 'Nuoc ngot', 20000, 'Dang su dung'),
-('DV002', 'Mi goi', 15000, 'Dang su dung'),
-('DV003', 'Bia', 30000, 'Dang su dung');
+('DV001', N'Nước ngọt', 20000, N'Đang sử dụng'),
+('DV002', N'Mì gói', 15000, N'Đang sử dụng'),
+('DV003', N'Bia', 30000, N'Đang sử dụng');
 
 -- Mã hóa mã phiếu đặt phòng theo kiểu DP + ngày tháng năm giờ phút giây
 INSERT INTO PhieuDatPhong (MaPhieuDatPhong, ThoiGianNhanPhong, ThoiGianTra, SoluongNguoi, ThoiGianDat, MaKH, MaNV)
@@ -157,8 +157,8 @@ VALUES
 -- Mã hóa mã hóa đơn theo kiểu HD + ngày tháng năm giờ phút giây
 INSERT INTO HoaDon (MaHoaDon, ThoiGianNhan, ThoiGianTra, NgayLapHoaDon, MaPhieuDatPhong, MaNV, MaKH, TrangThai)
 VALUES 
-('HD20240920100000', '2024-09-25 14:00:00', '2024-09-26 12:00:00', '2024-09-26 12:00:00', 'DP20240920100000', 'NV002', 'KH001', 'Da thanh toan'),
-('HD20241211140000', '2024-12-12 14:00:00', '2024-12-16 14:00:00', null, 'DP20241211140000', 'NV002', 'KH002', 'Chua thanh toan');
+('HD20240920100000', '2024-09-25 14:00:00', '2024-09-26 12:00:00', '2024-09-26 12:00:00', 'DP20240920100000', 'NV002', 'KH001', N'Đã thanh toán'),
+('HD20241211140000', '2024-12-12 14:00:00', '2024-12-16 14:00:00', null, 'DP20241211140000', 'NV002', 'KH002', N'Chưa thanh toán');
 
 -- Chèn dữ liệu vào bảng ChiTietHoaDonPhong (Liên kết hóa đơn với nhiều phòng)
 INSERT INTO ChiTietHoaDonPhong (MaPhieuDatPhong, MaPhong)
