@@ -3,6 +3,8 @@ package Gui;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import javax.swing.*;
 import ConnectDB.database;
 import Dao.TaiKhoan_dao;
@@ -23,7 +25,7 @@ public class Login extends JFrame implements ActionListener {
         try {
             database.getInstance().Connect();
         } catch (Exception e) {
-        	JOptionPane.showMessageDialog(this, "Lỗi database vui lòng kiểm tra lại","Lỗi",JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Lỗi database vui lòng kiểm tra lại", "Lỗi", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
         setTitle("Quản Lý Khách Sạn");
@@ -81,7 +83,6 @@ public class Login extends JFrame implements ActionListener {
         btnDangNhap.setForeground(new Color(255, 255, 255));
         btnDangNhap.setBackground(new Color(0, 128, 255));
         btnDangNhap.setBounds(60, 269, 367, 42);
-
         contentPane.add(btnDangNhap);
 
         chboxShowHidePWD = new JCheckBox("Hiện mật khẩu");
@@ -90,6 +91,25 @@ public class Login extends JFrame implements ActionListener {
         chboxShowHidePWD.setForeground(new Color(255, 255, 255));
         chboxShowHidePWD.setBounds(60, 238, 147, 23);
         contentPane.add(chboxShowHidePWD);
+
+        // Thêm KeyListener cho tfTenDangNhap và tfMatKhau để xử lý sự kiện Enter
+        tfTenDangNhap.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    btnDangNhap.doClick(); // Kích hoạt sự kiện nhấn nút đăng nhập
+                }
+            }
+        });
+
+        tfMatKhau.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    btnDangNhap.doClick(); // Kích hoạt sự kiện nhấn nút đăng nhập
+                }
+            }
+        });
 
         // add action listener
         btnDangNhap.addActionListener(this);
@@ -106,15 +126,15 @@ public class Login extends JFrame implements ActionListener {
             String tenDangNhap = tfTenDangNhap.getText();
             String matKhau = new String(tfMatKhau.getPassword());
             if (tenDangNhap.isEmpty() || matKhau.isEmpty()) {
-            	JOptionPane.showMessageDialog(this, "Vui lòng điền đầy dủ thông tin!","Lỗi", JOptionPane.ERROR_MESSAGE);
-            	return;
+                JOptionPane.showMessageDialog(this, "Vui lòng điền đầy đủ thông tin!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
             }
             if (taiKhoanDao.checkTaiKhoan(tenDangNhap, matKhau)) {
-            	 dispose();
-            	 //new MainGUI(tenDangNhap,taiKhoanDao.getRole(tenDangNhap));
-            	 new flashForm(tenDangNhap,taiKhoanDao.getRole(tenDangNhap));
-            	 
-            } else JOptionPane.showMessageDialog(this, "Tài khoản hoặc mật khẩu sai", "Lỗi" , JOptionPane.ERROR_MESSAGE);
+                dispose();
+                new flashForm(tenDangNhap, taiKhoanDao.getRole(tenDangNhap));
+            } else {
+                JOptionPane.showMessageDialog(this, "Tài khoản hoặc mật khẩu sai", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
         } else if (o.equals(chboxShowHidePWD)) {
             if (chboxShowHidePWD.isSelected()) {
                 tfMatKhau.setEchoChar((char) 0);

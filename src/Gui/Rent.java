@@ -31,8 +31,10 @@ public class Rent extends JPanel implements ActionListener{
     private JTextField tfSoDienThoai;
     private JTextField tfQuocTich;
     private JComboBox<String> cbbLoaiPhong;
+    private MainGUI mainGUI;
 
-    public Rent() {
+    public Rent(MainGUI mainGUI) {
+    	this.mainGUI = mainGUI;
         setLayout(new BorderLayout(0, 0));
         
         JPanel panel = new JPanel();
@@ -235,8 +237,7 @@ public class Rent extends JPanel implements ActionListener{
             	itemPanel.addMouseListener(new java.awt.event.MouseAdapter() {
                     @Override
                     public void mouseClicked(java.awt.event.MouseEvent evt) {
-                        MainGUI main = new MainGUI();
-                        main.openChiTietDatPhong("Thuê Phòng");
+                        mainGUI.openChiTietDatPhong("Thuê Phòng");
                     }
                 });
             } else {
@@ -244,8 +245,8 @@ public class Rent extends JPanel implements ActionListener{
             	btn.addMouseListener(new java.awt.event.MouseAdapter() {
                     @Override
                     public void mouseClicked(java.awt.event.MouseEvent evt) {
-                        MainGUI main = new MainGUI();
-                        main.openChiTietDatPhong("Thuê Phòng");
+                        
+                        mainGUI.openChiTietDatPhong("Thuê Phòng");
                     }
                 });
             }

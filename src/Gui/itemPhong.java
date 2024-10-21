@@ -8,7 +8,6 @@ import java.awt.geom.RoundRectangle2D;
 
 public class itemPhong extends RoundedPanel{
     public itemPhong(String maPhong ,String tang, String trangThai, String tenKhachHang, String loaiPhong, String thoiGianConLai) {
-    	
         super(30);
     	Color colortext = Color.black;
         Color colorbg = SystemColor.activeCaptionBorder;
@@ -98,5 +97,9 @@ public class itemPhong extends RoundedPanel{
         lbRemain.setForeground(colortext);
         lbRemain.setFont(new Font("Tahoma", Font.BOLD, 15));
         panel_8.add(lbRemain);
+        if(trangThai.equals("Trống")) {
+        	lbRemain.setText("");
+        	lbName.setText("");
+        }
     }
 }

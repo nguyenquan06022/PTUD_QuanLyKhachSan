@@ -5,51 +5,14 @@ import java.util.Objects;
 
 public class PhieuDatPhong {
 	private String maPhieuDatPhong;
-	private Timestamp thoiGianNhanPhong;
-	private int soLuongNguoi;
 	private Timestamp thoiGianDat;
 	private NhanVien nhanVien;
 	private KhachHang khachHang;
-	private Timestamp thoiGianTraPhong;
-	
-	public PhieuDatPhong(String maPhieuDatPhong, Timestamp thoiGianNhanPhong, int soLuongNguoi, Timestamp thoiGianDatPhong,
-			NhanVien nhanVien, KhachHang khachHang, Timestamp thoiGianTraPhong) {
-		super();
-		this.maPhieuDatPhong = maPhieuDatPhong;
-		this.thoiGianNhanPhong = thoiGianNhanPhong;
-		this.soLuongNguoi = soLuongNguoi;
-		this.thoiGianDat = thoiGianDatPhong;
-		this.nhanVien = nhanVien;
-		this.khachHang = khachHang;
-		this.thoiGianTraPhong = thoiGianTraPhong;
-	}
-	public Timestamp getThoiGianTraPhong() {
-		return thoiGianTraPhong;
-	}
-	public void setThoiGianTraPhong(Timestamp thoiGianTraPhong) {
-		this.thoiGianTraPhong = thoiGianTraPhong;
-	}
-	public PhieuDatPhong() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
 	public String getMaPhieuDatPhong() {
 		return maPhieuDatPhong;
 	}
 	public void setMaPhieuDatPhong(String maPhieuDatPhong) {
 		this.maPhieuDatPhong = maPhieuDatPhong;
-	}
-	public Timestamp getThoiGianNhanPhong() {
-		return thoiGianNhanPhong;
-	}
-	public void setThoiGianNhanPhong(Timestamp thoiGianNhanPhong) {
-		this.thoiGianNhanPhong = thoiGianNhanPhong;
-	}
-	public int getSoLuongNguoi() {
-		return soLuongNguoi;
-	}
-	public void setSoLuongNguoi(int soLuongNguoi) {
-		this.soLuongNguoi = soLuongNguoi;
 	}
 	public Timestamp getThoiGianDat() {
 		return thoiGianDat;
@@ -69,9 +32,12 @@ public class PhieuDatPhong {
 	public void setKhachHang(KhachHang khachHang) {
 		this.khachHang = khachHang;
 	}
-	public PhieuDatPhong(String maPhieuDatPhong) {
+	public PhieuDatPhong(String maPhieuDatPhong, Timestamp thoiGianDat, NhanVien nhanVien, KhachHang khachHang) {
 		super();
 		this.maPhieuDatPhong = maPhieuDatPhong;
+		this.thoiGianDat = thoiGianDat;
+		this.nhanVien = nhanVien;
+		this.khachHang = khachHang;
 	}
 	@Override
 	public int hashCode() {
@@ -90,9 +56,7 @@ public class PhieuDatPhong {
 	}
 	@Override
 	public String toString() {
-		return "PhieuDatPhong [maPhieuDatPhong=" + maPhieuDatPhong + ", thoiGianNhanPhong=" + thoiGianNhanPhong
-				+ ", soLuongNguoi=" + soLuongNguoi + ", thoiGianDat=" + thoiGianDat + ", nhanVien=" + nhanVien
-				+ ", khachHang=" + khachHang + ", thoiGianTraPhong=" + thoiGianTraPhong + "]";
+		return "PhieuDatPhong [maPhieuDatPhong=" + maPhieuDatPhong + ", thoiGianDat=" + thoiGianDat + ", nhanVien="
+				+ nhanVien + ", khachHang=" + khachHang + "]";
 	}
-	
 }

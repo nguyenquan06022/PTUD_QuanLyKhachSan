@@ -10,7 +10,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class MainGUI extends JFrame implements ActionListener {
-    private JPanel contentPane;
+
+	private JPanel contentPane;
 
     private static JButton btnUser;
     private static JButton btnHome;
@@ -24,6 +25,8 @@ public class MainGUI extends JFrame implements ActionListener {
     private static JPanel body;
     private String userName1;
     private String role1;
+    private Order order;
+    private Rent rent;
 
     private JPopupMenu manageMenu;
 
@@ -32,12 +35,10 @@ public class MainGUI extends JFrame implements ActionListener {
         body.revalidate();
         body.repaint();
     }
-    
-    public MainGUI() {
-    	
-    }
 
     public MainGUI(String userName, String role) {
+    	order = new Order(this);
+    	rent = new Rent(this);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle("Quản Lý Khách Sạn");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -61,7 +62,9 @@ public class MainGUI extends JFrame implements ActionListener {
         btnStatistics = createNavbarButton(navbar, "Thống Kê", "/Photos/statistic.png");
         btnSearch = createNavbarButton(navbar, "Tra Cứu", "/Photos/research.png");
         btnLogout = createNavbarButton(navbar, "Đăng Xuất", "/Photos/logout.png");
-
+        btnHome.setBackground(Color.gray);
+        selectedButton = btnHome;
+        
         // Tạo submenu cho "Quản Lý"
         manageMenu = new JPopupMenu();
         manageMenu.setBorder(new EmptyBorder(0, 0, 0, 0));  // Bỏ viền để submenu trông đẹp hơn
@@ -205,17 +208,17 @@ public class MainGUI extends JFrame implements ActionListener {
     
     public void openThuePhong() {
     	removeBodyComponent();
-    	body.add(new Rent(), BorderLayout.CENTER);
+    	body.add(rent, BorderLayout.CENTER);
     }
     
     public void openDatPhong() {
     	removeBodyComponent();
-    	body.add(new Order(), BorderLayout.CENTER);
+    	body.add(order, BorderLayout.CENTER);
     }
     
     public void openChiTietDatPhong(String type) {
     	removeBodyComponent();
-    	body.add(new ChiTietPhongDat(type), BorderLayout.CENTER);
+    	body.add(new ChiTietPhongDat(type,this), BorderLayout.CENTER);
     }
 
     @Override
@@ -237,10 +240,10 @@ public class MainGUI extends JFrame implements ActionListener {
             body.add(new Home(),BorderLayout.CENTER);
         } else if (o.equals(btnOrder)) {
             removeBodyComponent();
-            body.add(new Order(),BorderLayout.CENTER);
+            body.add(order,BorderLayout.CENTER);
         } else if (o.equals(btnRent)) {
             removeBodyComponent();
-            body.add(new Rent(),BorderLayout.CENTER);
+            body.add(rent,BorderLayout.CENTER);
         } else if (o.equals(btnStatistics)) {
             removeBodyComponent();
             body.add(new Statistics(),BorderLayout.CENTER);

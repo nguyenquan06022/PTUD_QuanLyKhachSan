@@ -2,17 +2,27 @@ package Gui;
 
 import javax.swing.JPanel;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
+
+import Dao.LoaiPhong_dao;
+import Dao.Phong_dao;
+import Entity.Phong;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 
@@ -27,12 +37,22 @@ import javax.swing.JScrollPane;
 import javax.swing.border.LineBorder;
 
 public class Order extends JPanel implements ActionListener{
+	private Phong_dao phongDao = new Phong_dao();
+	private LoaiPhong_dao loaiPhongDao = new LoaiPhong_dao();
+	
+	private MainGUI mainGUI;
     private JTextField tfHoTen;
     private JTextField tfSoDienThoai;
     private JTextField tfQuocTich;
     private JComboBox<String> cbbLoaiPhong;
-
-    public Order() {
+    private JPanel availableRoomPanel = new JPanel();
+    private ArrayList<Phong> dsPhongDaDat;
+    private JRadioButton radioNam;
+    private JRadioButton radioNu; 
+    
+    public Order(MainGUI mainGUI) {
+    	this.mainGUI = mainGUI;
+    	dsPhongDaDat = new ArrayList<Phong>();
         setLayout(new BorderLayout(0, 0));
         
         JPanel panel = new JPanel();
@@ -95,12 +115,13 @@ public class Order extends JPanel implements ActionListener{
         lblNewLabel_2.setFont(new Font("Tahoma", Font.BOLD, 15));
         panel_6.add(lblNewLabel_2);
         
-        JRadioButton radioNam = new JRadioButton("Nam");
+        radioNam = new JRadioButton("Nam");
         radioNam.setBackground(new Color(255, 255, 255));
         radioNam.setFont(new Font("Tahoma", Font.BOLD, 15));
+        radioNam.setSelected(true);
         panel_6.add(radioNam);
         
-        JRadioButton radioNu = new JRadioButton("Nữ");
+        radioNu = new JRadioButton("Nữ");
         radioNu.setBackground(new Color(255, 255, 255));
         radioNu.setFont(new Font("Tahoma", Font.BOLD, 15));
         panel_6.add(radioNu);
@@ -128,21 +149,57 @@ public class Order extends JPanel implements ActionListener{
         lblNewLabel_3.setFont(new Font("Tahoma", Font.BOLD, 15));
         panel_8.add(lblNewLabel_3);
         
+        //ArrayList<Phong> dsPhongTrong = phongDao.danhSachPhongTheoTrangThai("Trống");
+        
         cbbLoaiPhong = new JComboBox<>();
         cbbLoaiPhong.setFont(new Font("Tahoma", Font.BOLD, 15));
         cbbLoaiPhong.setBackground(Color.LIGHT_GRAY);
         panel_8.add(cbbLoaiPhong);
         
-        // Thêm các giá trị cho JComboBox
         addRoomTypes();
+        cbbLoaiPhong.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedLoaiPhong = (String) cbbLoaiPhong.getSelectedItem();
+                updatePanelDanhSachPhongTrong(selectedLoaiPhong);
+            }
+        });
+
+
 
         JButton btnDatPhong = new JButton("Đặt Phòng");
+        btnDatPhong.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		if(checkForm() == false) {
+        			return;
+        		}
+        		if(dsPhongDaDat.size() == 0) {
+        			JOptionPane.showMessageDialog(null,"Chưa chọn phòng nào!", "Thông báo",JOptionPane.INFORMATION_MESSAGE);
+        			return;
+        		}
+        		
+        	}
+        });
         btnDatPhong.setFont(new Font("Tahoma", Font.BOLD, 15));
         btnDatPhong.setForeground(Color.WHITE);
         btnDatPhong.setBackground(new Color(0, 153, 255));
         btnDatPhong.setOpaque(true);
         btnDatPhong.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15)); // Bo góc cho nút
         panel_8.add(btnDatPhong);
+        
+        JButton btnXoaTrang = new JButton("Xóa trắng");
+        btnXoaTrang.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		tfHoTen.setText("");
+        		tfSoDienThoai.setText("");
+        		tfQuocTich.setText("");
+        		cbbLoaiPhong.setSelectedIndex(0);
+        		radioNam.setSelected(true);
+        	}
+        });
+        btnXoaTrang.setBackground(new Color(192, 192, 192));
+        btnXoaTrang.setFont(new Font("Tahoma", Font.BOLD, 15));
+        panel_8.add(btnXoaTrang);
         
         JPanel list = new JPanel();
         list.setPreferredSize(new Dimension(300, list.getHeight()));
@@ -166,14 +223,13 @@ public class Order extends JPanel implements ActionListener{
         JScrollPane scrollPane = new JScrollPane();
         empty.add(scrollPane, BorderLayout.CENTER);
 
-        // Tạo JPanel chứa các item cho phòng trống
-        JPanel availableRoomPanel = new JPanel();
         availableRoomPanel.setLayout(new BoxLayout(availableRoomPanel, BoxLayout.Y_AXIS));
         scrollPane.setViewportView(availableRoomPanel);
-
-        // Thêm các item vào danh sách phòng trống
-        addRoomItems(availableRoomPanel, "Phòng trống");
-
+//        ArrayList<Phong> filteredRooms = (ArrayList<Phong>) dsPhongTrong.stream()
+//                .filter(item -> item.getLoaiPhong().getTenLoaiPhong().equals("Phòng đơn"))
+//                .collect(Collectors.toList());
+//        addRoomItems(availableRoomPanel, "Phòng trống",filteredRooms);
+        updatePanelDanhSachPhongTrong("Phòng đơn");
         JPanel ordered = new JPanel();
         list.add(ordered);
         ordered.setLayout(new BorderLayout(0, 0));
@@ -189,26 +245,23 @@ public class Order extends JPanel implements ActionListener{
         JScrollPane scrollPane_1 = new JScrollPane();
         ordered.add(scrollPane_1, BorderLayout.CENTER);
 
-        // Tạo JPanel chứa các item cho phòng đặt
         JPanel bookedRoomPanel = new JPanel();
         bookedRoomPanel.setLayout(new BoxLayout(bookedRoomPanel, BoxLayout.Y_AXIS));
         scrollPane_1.setViewportView(bookedRoomPanel);
-
-        // Thêm các item vào danh sách phòng đặt
-        addRoomItems(bookedRoomPanel, "Phòng đã đặt");
     }
 
-    // Hàm thêm các giá trị loại phòng vào JComboBox
     private void addRoomTypes() {
-        cbbLoaiPhong.addItem("Phòng đơn");
-        cbbLoaiPhong.addItem("Phòng đôi");
-        cbbLoaiPhong.addItem("Phòng VIP");
+    	loaiPhongDao.danhSachLoaiPhong().forEach(item -> {
+    		cbbLoaiPhong.addItem(item.getTenLoaiPhong());
+    	});
     }
 
- // Hàm thêm các item vào danh sách phòng trống và phòng đặt
-    private void addRoomItems(JPanel panel, String type) {
-        for (int i = 1; i <= 10; i++) {
-            JPanel itemPanel = new JPanel();
+ 
+    private void addRoomItems(JPanel panel, String type, ArrayList<Phong> dsPhong) {
+        dsPhong.forEach(item -> {
+        	JPanel itemPanel = new JPanel();
+        	itemPanel.setPreferredSize(new Dimension(panel.getPreferredSize().width,50));
+        	itemPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
             itemPanel.setLayout(new BorderLayout());
             
             JLabel lbIcon = new JLabel("");
@@ -221,9 +274,9 @@ public class Order extends JPanel implements ActionListener{
             itemContent.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); 
             itemContent.setAlignmentX(Component.CENTER_ALIGNMENT); 
             
-            JLabel maPhong = new JLabel("P2006");
+            JLabel maPhong = new JLabel(item.getTang() + " - " + item.getMaPhong());
             maPhong.setAlignmentX(Component.CENTER_ALIGNMENT);
-            JLabel loaiPhong = new JLabel("Phòng đôi");
+            JLabel loaiPhong = new JLabel(item.getLoaiPhong().getTenLoaiPhong());
             loaiPhong.setAlignmentX(Component.CENTER_ALIGNMENT);
             itemContent.add(maPhong);
             itemContent.add(loaiPhong);
@@ -235,8 +288,7 @@ public class Order extends JPanel implements ActionListener{
             	itemPanel.addMouseListener(new java.awt.event.MouseAdapter() {
                     @Override
                     public void mouseClicked(java.awt.event.MouseEvent evt) {
-                        MainGUI main = new MainGUI();
-                        main.openChiTietDatPhong("Đặt Phòng");
+                        mainGUI.openChiTietDatPhong("Đặt Phòng");
                     }
                 });
             } else {
@@ -244,8 +296,11 @@ public class Order extends JPanel implements ActionListener{
             	btn.addMouseListener(new java.awt.event.MouseAdapter() {
                     @Override
                     public void mouseClicked(java.awt.event.MouseEvent evt) {
-                        MainGUI main = new MainGUI();
-                        main.openChiTietDatPhong("Đặt Phòng");
+                    	// logic kiểm tra các field
+              
+                        int gioiTinh = 1;
+                        if(radioNu.isSelected()) gioiTinh = 0;
+                        mainGUI.openChiTietDatPhong("Đặt Phòng");
                     }
                 });
             }
@@ -259,9 +314,54 @@ public class Order extends JPanel implements ActionListener{
             
             panel.add(itemPanel);
             panel.add(Box.createRigidArea(new Dimension(0, 5)));
-        }
+        });
     }
 
+    private boolean checkForm() {
+        String hoTen = tfHoTen.getText();
+        String sdt = tfSoDienThoai.getText();
+        String quocTich = tfQuocTich.getText();
+        int gioiTinh = 1;
+        if (radioNu.isSelected()) gioiTinh = 0;
+
+        if (hoTen.equals("") || sdt.equals("") || quocTich.equals("")) {
+            JOptionPane.showMessageDialog(null, "Vui lòng điền thông tin vào các trường", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            return false;
+        }
+
+        if (!hoTen.matches("^[a-zA-Z\\s]+$")) {
+            JOptionPane.showMessageDialog(null, "Tên chỉ bao gồm chữ cái và khoảng trắng", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            return false;
+        }
+
+        if (!sdt.matches("^\\d{9,11}$")) {
+            JOptionPane.showMessageDialog(null, "Số điện thoại chỉ bao gồm số và có độ dài từ 9 đến 11 ký tự", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            return false;
+        }
+
+        if (!quocTich.matches("^[a-zA-Z\\s]+$")) {
+            JOptionPane.showMessageDialog(null, "Quốc tịch chỉ bao gồm chữ cái và khoảng trắng", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            return false;
+        }
+
+        return true;
+    }
+
+    private void updatePanelDanhSachPhongTrong(String LoaiPhong) {
+    	ArrayList<Phong> dsPhongTrong = phongDao.danhSachPhongTheoTrangThai("Trống");
+
+        ArrayList<Phong> filteredRooms = (ArrayList<Phong>) dsPhongTrong.stream()
+            .filter(item -> item.getLoaiPhong().getTenLoaiPhong().equals(LoaiPhong))
+            .filter(item -> !dsPhongDaDat.contains(item))
+            .collect(Collectors.toList());
+        availableRoomPanel.removeAll(); 
+
+        addRoomItems(availableRoomPanel, "Phòng trống", filteredRooms); 
+
+        availableRoomPanel.revalidate();
+        availableRoomPanel.repaint();
+    }
+    
 @Override
 public void actionPerformed(ActionEvent e) {
 	

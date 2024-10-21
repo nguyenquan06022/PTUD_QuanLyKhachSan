@@ -4,8 +4,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.sql.Timestamp;
 import java.util.List;
@@ -15,6 +17,7 @@ import ConnectDB.database;
 import Entity.KhachHang;
 import Entity.NhanVien;
 import Entity.PhieuDatPhong;
+import Gui.itemPhong;
 
 public class PhieuDatPhong_dao {
     static NhanVien_dao nhanVien_dao = new NhanVien_dao();
@@ -35,18 +38,15 @@ public class PhieuDatPhong_dao {
         ArrayList<PhieuDatPhong> dsPDP = new ArrayList<PhieuDatPhong>();
         try {
             Connection con = database.getInstance().getConnection();
-            String sql = "Select MaPhieuDatPhong,ThoiGianNhanPhong,SoluongNguoi,ThoiGianDat,MaKH,MaNV,ThoiGianTra from PhieuDatPhong";
+            String sql = "Select MaPhieuDatPhong,ThoiGianDat,MaKH,MaNV from PhieuDatPhong";
             Statement statement = con.createStatement();
             ResultSet rs = statement.executeQuery(sql);
             while (rs.next()) {
                 String maPDP = rs.getString(1);
-                Timestamp thoiGianNhan = rs.getTimestamp(2);
-                int soLuongNguoi = rs.getInt(3);
-                Timestamp thoiGianDat = rs.getTimestamp(4);
-                KhachHang khachHang = khachHang_dao.timKhachHangTheoMa(rs.getString(5));
-                NhanVien nhanVien = nhanVien_dao.getNhanVienTheoMa(rs.getString(6));
-                Timestamp thoiGianTra = rs.getTimestamp(7);
-                PhieuDatPhong phieuDatPhong = new PhieuDatPhong(maPDP, thoiGianNhan, soLuongNguoi, thoiGianDat, nhanVien, khachHang,thoiGianTra);
+                Timestamp thoiGianDat = rs.getTimestamp(2);
+                KhachHang khachHang = khachHang_dao.timKhachHangTheoMa(rs.getString(3));
+                NhanVien nhanVien = nhanVien_dao.getNhanVienTheoMa(rs.getString(4));
+                PhieuDatPhong phieuDatPhong = new PhieuDatPhong(maPDP, thoiGianDat, nhanVien, khachHang);
                 dsPDP.add(phieuDatPhong);
             }
         } catch (Exception e) {
@@ -81,14 +81,12 @@ public class PhieuDatPhong_dao {
         boolean isSuccess = false;
         String maPhieuDatPhong = taoMaPhieuDatPhong();
         try {
-            String sql = "INSERT INTO PhieuDatPhong (MaPhieuDatPhong, ThoiGianNhanPhong, SoluongNguoi, ThoiGianDat, MaKH, MaNV) VALUES (?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO PhieuDatPhong (MaPhieuDatPhong, ThoiGianDat, MaKH, MaNV) VALUES (?, ?, ?, ?)";
             stmt = con.prepareStatement(sql);
             stmt.setString(1, maPhieuDatPhong);
-            stmt.setTimestamp(2, phieuDatPhong.getThoiGianNhanPhong());
-            stmt.setInt(3, phieuDatPhong.getSoLuongNguoi());
-            stmt.setTimestamp(4, phieuDatPhong.getThoiGianDat());
-            stmt.setString(5, phieuDatPhong.getKhachHang().getMaKH());
-            stmt.setString(6, phieuDatPhong.getNhanVien().getMaNV());
+            stmt.setTimestamp(2, phieuDatPhong.getThoiGianDat());
+            stmt.setString(3, phieuDatPhong.getKhachHang().getMaKH());
+            stmt.setString(4, phieuDatPhong.getNhanVien().getMaNV());
             int rowsInserted = stmt.executeUpdate();
             if (rowsInserted > 0) {
                 isSuccess = true;
@@ -99,58 +97,68 @@ public class PhieuDatPhong_dao {
         return isSuccess;
     }
 
-    public boolean suaPhieuDatPhong(PhieuDatPhong phieuDatPhong) {
-        khoiTao();
-        Connection connection = database.getInstance().getConnection();
-        boolean isSuccess = false;
-        try {
-            String updateSql = "UPDATE PhieuDatPhong SET ThoiGianNhanPhong = ?, SoluongNguoi = ?, ThoiGianDat = ? WHERE MaPhieuDatPhong = ?";
-            PreparedStatement updateStmt = connection.prepareStatement(updateSql);
-            updateStmt.setTimestamp(1, phieuDatPhong.getThoiGianNhanPhong());
-            updateStmt.setInt(2, phieuDatPhong.getSoLuongNguoi());
-            updateStmt.setTimestamp(3, phieuDatPhong.getThoiGianDat());
-            updateStmt.setString(4, phieuDatPhong.getMaPhieuDatPhong());
-            int rowsUpdated = updateStmt.executeUpdate();
-            if (rowsUpdated > 0) {
-                isSuccess = true;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return isSuccess;
-    }
+//    public boolean suaPhieuDatPhong(PhieuDatPhong phieuDatPhong) {
+//        khoiTao();
+//        Connection connection = database.getInstance().getConnection();
+//        boolean isSuccess = false;
+//        try {
+//            String updateSql = "UPDATE PhieuDatPhong SET ThoiGianDat = ? WHERE MaPhieuDatPhong = ?";
+//            PreparedStatement updateStmt = connection.prepareStatement(updateSql);
+//            updateStmt.setTimestamp(1, phieuDatPhong.getThoiGianNhanPhong());
+//            updateStmt.setInt(2, phieuDatPhong.getSoLuongNguoi());
+//            updateStmt.setTimestamp(3, phieuDatPhong.getThoiGianDat());
+//            updateStmt.setString(4, phieuDatPhong.getMaPhieuDatPhong());
+//            int rowsUpdated = updateStmt.executeUpdate();
+//            if (rowsUpdated > 0) {
+//                isSuccess = true;
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return isSuccess;
+//    }
 
     // get theo ma phong va theo trang thai [dang thue, dang dat]
-    public PhieuDatPhong getPhieuDatPhongTheoMaPhong(String maPhong, String trangThai) {
-        PhieuDatPhong phieuDatPhong = null;
+    public itemPhong createItemPhongTheoMaPhong(String maPhong, String trangThai) {
+        itemPhong itemphong = null;
         Connection connection = database.getInstance().getConnection();
         try {
-            String sql = "SELECT pdp.MaPhieuDatPhong, ThoiGianNhan, SoluongNguoi, ThoiGianDat, pdp.ThoiGianTra, pdp.MaNV, pdp.MaKH "
-                       + "FROM PhieuDatPhong pdp "
-                       + "JOIN HoaDon hd ON pdp.MaPhieuDatPhong = hd.MaPhieuDatPhong "
-                       + "JOIN ChiTietHoaDonPhong cthdp ON cthdp.MaPhieuDatPhong = pdp.MaPhieuDatPhong "
-                       + "WHERE hd.TrangThai = ? AND cthdp.MaPhong = ?";
+            String sql = "select p.MaPhong, kh.HoTen, kh.SDT,p.TrangThai,p.Tang,cthdp.ThoiGianTra, lp.TenLP from PhieuDatPhong pdp\r\n"
+            		+ "join ChiTietHoaDonPhong cthdp on pdp.MaPhieuDatPhong = cthdp.MaPhieuDatPhong\r\n"
+            		+ "join HoaDon hd on hd.MaPhieuDatPhong = cthdp.MaPhieuDatPhong\r\n"
+            		+ "join Phong p on p.MaPhong = cthdp.MaPhong\r\n"
+            		+ "join KhachHang kh on kh.MaKH = pdp.MaKH\r\n"
+            		+ "join LoaiPhong lp on lp.MaLP = p.MaLP\r\n"
+            		+ "where p.TrangThai = ? and p.MaPhong = ?";
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setString(1, trangThai);
             stmt.setString(2, maPhong);
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                String maPhieuDatPhong = rs.getString(1);
-                Timestamp thoiGianNhan = rs.getTimestamp(2);
-                int soLuongNguoi = rs.getInt(3);
-                Timestamp thoiGianDat = rs.getTimestamp(4);
-                Timestamp thoiGianTra = rs.getTimestamp(5);
-                String maNV = rs.getString(6);
-                String maKH = rs.getString(7);
-
-                // Tạo đối tượng PhieuDatPhong với các giá trị đã lấy
-                phieuDatPhong = new PhieuDatPhong(maPhieuDatPhong, thoiGianNhan, soLuongNguoi, thoiGianDat,
-                        new NhanVien_dao().getNhanVienTheoMa(maNV), new KhachHang_dao().timKhachHangTheoMa(maKH), thoiGianTra);
+            	// 1 maPhong
+                String hoTen = rs.getString(2);
+                String sdt = rs.getString(3);
+                // 4 trangthai
+                String tang = rs.getString(5);
+    
+                String tenLP =rs.getString(7);
+                
+                String thoiGianTra = rs.getString(6);
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
+                LocalDateTime targetTime = LocalDateTime.parse(thoiGianTra, formatter);
+                LocalDateTime now = LocalDateTime.now();
+                Duration duration = Duration.between(now, targetTime);
+                long days = duration.toDays();
+                long hours = duration.toHours() % 24;
+                long minutes = duration.toMinutes() % 60;
+                String thoiGianConLai = days + " Ngày " + hours + " Giờ " + minutes + " Phút "; 
+                
+                itemphong = new itemPhong(maPhong ,tang,trangThai,hoTen, tenLP, thoiGianConLai);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return phieuDatPhong;
+        return itemphong;
     }
 }

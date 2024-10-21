@@ -2,7 +2,6 @@ package Gui;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 
 import ConnectDB.database;
 import Dao.LoaiPhong_dao;
@@ -19,15 +18,18 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import javax.swing.border.BevelBorder;
 
 public class Home extends JPanel {
     private LoaiPhong_dao loaiPhongDao = new LoaiPhong_dao();
     private Phong_dao phongDao = new Phong_dao();
     private PhieuDatPhong_dao phieuDatPhongDao = new PhieuDatPhong_dao();
     private JPanel itemPanel = new JPanel();
+    private  ArrayList<itemPhong> dsItemPhong = new ArrayList<itemPhong>();
     public Home() {
-        
-        // Kết nối cơ sở dữ liệu
+
         try {
             database.getInstance().Connect();
         } catch (Exception e) {
@@ -37,8 +39,7 @@ public class Home extends JPanel {
         
         setBackground(new Color(255, 255, 255));
         setLayout(new BorderLayout(0, 0));
-        
-        // Tạo panel cho tiêu đề
+
         JPanel panel = new JPanel();
         setBorder(new EmptyBorder(20, 20, 20, 20));
         add(panel, BorderLayout.NORTH);
@@ -46,8 +47,7 @@ public class Home extends JPanel {
         JLabel lblNewLabel = new JLabel("Trang Chủ");
         lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 20));
         panel.add(lblNewLabel);
-        
-        // Tạo panel cho điều khiển
+
         JPanel panel_1 = new JPanel();
         add(panel_1, BorderLayout.CENTER);
         panel_1.setLayout(new BorderLayout(0, 0));
@@ -57,7 +57,6 @@ public class Home extends JPanel {
         pnControl.setLayout(new BoxLayout(pnControl, BoxLayout.Y_AXIS));
         panel_1.add(pnControl, BorderLayout.WEST);
         
-        // Trạng Thái
         JPanel panel_5 = new JPanel();
         pnControl.add(panel_5);
         panel_5.setLayout(new BoxLayout(panel_5, BoxLayout.Y_AXIS));
@@ -79,7 +78,6 @@ public class Home extends JPanel {
         cbbTrangThai.addItem("Đã đặt");
         cbbTrangThai.addItem("Đang Thuê");
         
-        // Loại Phòng
         JPanel panel_3 = new JPanel();
         pnControl.add(panel_3);
         panel_3.setLayout(new BoxLayout(panel_3, BoxLayout.Y_AXIS));
@@ -96,13 +94,12 @@ public class Home extends JPanel {
         
         JComboBox<String> cbbLoaiPhong = new JComboBox<>();
         cbbLoaiPhong.addItem("Tất Cả");
-        ArrayList<LoaiPhong> dslp = loaiPhongDao.danhSachLoaiPhong();
-        dslp.forEach(item-> {
-        	cbbLoaiPhong.addItem(item.getTenLoaiPhong());
+        ArrayList<String> dslp = new ArrayList<String>();
+        loaiPhongDao.danhSachLoaiPhong().forEach(item-> {
+        	if(!dslp.contains(item.getTenLoaiPhong())) cbbLoaiPhong.addItem(item.getTenLoaiPhong());
         });
         panel_6.add(cbbLoaiPhong);
         
-        // Lầu
         JPanel panel_4 = new JPanel();
         pnControl.add(panel_4);
         panel_4.setLayout(new BoxLayout(panel_4, BoxLayout.Y_AXIS));
@@ -120,137 +117,154 @@ public class Home extends JPanel {
         JComboBox<String> cbbLau = new JComboBox<>();
         cbbLau.addItem("Tất Cả");
         ArrayList<Phong> dsPhong = phongDao.danhSachPhong();
+        ArrayList<String> dsTang = new ArrayList<>();
         dsPhong.forEach(item -> {
-        	ArrayList<String> dsTang = new ArrayList<>();
         	if(!dsTang.contains(item.getTang())) {
         		dsTang.add(item.getTang());
         		cbbLau.addItem(item.getTang());
         	}
         });
         panel_7.add(cbbLau);
-
-        // Thêm các ItemListener cho các JComboBox
+        
         ItemListener comboBoxListener = new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
-                    // Lấy giá trị của tất cả JComboBox
                     String trangThai = (String) cbbTrangThai.getSelectedItem();
                     String loaiPhong = (String) cbbLoaiPhong.getSelectedItem();
                     String lau = (String) cbbLau.getSelectedItem();
 
-                    // Xóa các item cũ
-                    itemPanel.removeAll();
+                    itemPanel.removeAll(); // Xóa tất cả các item hiện tại
 
-                    // Lọc danh sách phòng theo các tiêu chí
+                    // Lọc danh sách phòng dựa trên các tiêu chí từ combobox
                     dsPhong.stream()
                         .filter(item -> (trangThai.equals("Tất Cả") || item.getTrangThai().equals(trangThai)))
                         .filter(item -> (loaiPhong.equals("Tất Cả") || item.getLoaiPhong().getTenLoaiPhong().equals(loaiPhong)))
                         .filter(item -> (lau.equals("Tất Cả") || item.getTang().equals(lau)))
                         .forEach(item -> {
-                            String maPhong = item.getMaPhong();
-                            String tang = item.getTang();
-                            String trangThaiPhong = item.getTrangThai();
-                            String loaiPhongPhong = item.getLoaiPhong().getTenLoaiPhong();
-                            String tenKhachHang = "";
-                            String thoiGianConLai = "";
-
-                            if (trangThaiPhong.equals("Đã đặt")) {
-                            	PhieuDatPhong phieuDatPhong = phieuDatPhongDao.getPhieuDatPhongTheoMaPhong(maPhong, "Chưa thanh toán");
-                                tenKhachHang = phieuDatPhong.getKhachHang().getTenKH();
-                                String targetTimeStr = phieuDatPhong.getThoiGianTraPhong().toString();
-                                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
-                                LocalDateTime targetTime = LocalDateTime.parse(targetTimeStr, formatter);
-                                LocalDateTime now = LocalDateTime.now();
-                                Duration duration = Duration.between(now, targetTime);
-                                long days = duration.toDays();
-                                long hours = duration.toHours() % 24;
-                                long minutes = duration.toMinutes() % 60;
-                                thoiGianConLai = days + " Ngày " + hours + " Giờ " + minutes + " Phút "; 
-                            } else if (trangThaiPhong.equals("Đang thuê")) {
-                            	PhieuDatPhong phieuDatPhong = phieuDatPhongDao.getPhieuDatPhongTheoMaPhong(maPhong, "Đã thanh toán");
-                                tenKhachHang = phieuDatPhong.getKhachHang().getTenKH();
-                                String targetTimeStr = phieuDatPhong.getThoiGianTraPhong().toString();
-                                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
-                                LocalDateTime targetTime = LocalDateTime.parse(targetTimeStr, formatter);
-                                LocalDateTime now = LocalDateTime.now();
-                                Duration duration = Duration.between(now, targetTime);
-                                long days = duration.toDays();
-                                long hours = duration.toHours() % 24;
-                                long minutes = duration.toMinutes() % 60;
-                                thoiGianConLai = days + " Ngày " + hours + " Giờ " + minutes + " Phút "; 
+                            itemPhong itemphong;
+                            if (item.getTrangThai().equals("Đã đặt")) {
+                                itemphong = phieuDatPhongDao.createItemPhongTheoMaPhong(item.getMaPhong(), "Đã đặt");
+                            } else if (item.getTrangThai().equals("Đang thuê")) {
+                                itemphong = phieuDatPhongDao.createItemPhongTheoMaPhong(item.getMaPhong(), "Đang thuê");
+                            } else {
+                                itemphong = phieuDatPhongDao.createItemPhongTheoMaPhong(item.getMaPhong(), "Trống");
                             }
 
-                            // Tạo itemPhong và thêm vào panel
-                            itemPhong itemphong = new itemPhong(maPhong, tang, trangThaiPhong, tenKhachHang, loaiPhongPhong, thoiGianConLai);
-                            itemPanel.add(itemphong);
+                            if(dsItemPhong.size() != 3) {
+                                dsItemPhong.add(itemphong);
+                            } else {
+                                JPanel rowPanel = new JPanel();
+                                rowPanel.setPreferredSize(new Dimension(itemPanel.getPreferredSize().width,200));
+                                rowPanel.setBackground(Color.white);
+                                rowPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
+                                rowPanel.setLayout(new GridLayout(1, 3, 10, 10));
+                                rowPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+                                dsItemPhong.forEach(x -> {
+                                    rowPanel.add(x);
+                                });
+                                itemPanel.add(rowPanel);
+                                dsItemPhong.clear();
+                                
+                                dsItemPhong.add(itemphong);
+                            }
                         });
+                    
+                    // Thêm các phòng còn lại nếu không đủ 3 phòng
+                    if(!dsItemPhong.isEmpty()) {
+                        int remain = 3 - dsItemPhong.size();
+                        JPanel rowPanel = new JPanel();
+                        rowPanel.setPreferredSize(new Dimension(itemPanel.getPreferredSize().width,200));
+                        rowPanel.setBackground(Color.white);
+                        rowPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
+                        rowPanel.setLayout(new GridLayout(1, 3, 10, 10));
+                        rowPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+                        dsItemPhong.forEach(x -> {
+                            rowPanel.add(x);
+                        });
+                        for(int i = 0; i < remain; i++) {
+                            JPanel pn = new JPanel();
+                            pn.setBackground(Color.white);
+                            rowPanel.add(pn);
+                        }
+                        itemPanel.add(rowPanel);
+                        dsItemPhong.clear();
+                    }
 
-                    // Cập nhật lại layout sau khi thêm item
-                    itemPanel.revalidate();
-                    itemPanel.repaint();
+                    itemPanel.revalidate(); // Xác nhận thay đổi
+                    itemPanel.repaint(); // Vẽ lại giao diện
                 }
             }
         };
 
-
-        // Gán listener cho từng JComboBox
+        
         cbbTrangThai.addItemListener(comboBoxListener);
         cbbLoaiPhong.addItemListener(comboBoxListener);
         cbbLau.addItemListener(comboBoxListener);
-//        Tạo panel chính
+
         JPanel main = new JPanel();
-        main.setBackground(new Color(255, 255, 255));
-        main.setBorder(new LineBorder(new Color(0, 0, 0)));
+        main.setBackground(SystemColor.menu);
+        main.setBorder(new EmptyBorder(0, 0, 10, 10));
         panel_1.add(main, BorderLayout.CENTER);
         main.setLayout(new BorderLayout(0, 0));
         
         JScrollPane scrollPane = new JScrollPane();
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        itemPanel.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
         
-        itemPanel.setBackground(SystemColor.menu);
+        itemPanel.setBackground(new Color(255, 255, 255));
         
-        int row = dsPhong.size() / 3;
-        if (dsPhong.size() % 3 != 0) row += 1;
-
         dsPhong.forEach(item -> {
-            String maPhong = item.getMaPhong();
-            String trangThai = item.getTrangThai();
-            String tang = item.getTang();
-            String loaiPhong = item.getLoaiPhong().getTenLoaiPhong();
-            String tenKhachHang = "";
-            String thoiGianConLai = "";
+            itemPhong itemphong;
             if (item.getTrangThai().equals("Đã đặt")) {
-                PhieuDatPhong phieuDatPhong = phieuDatPhongDao.getPhieuDatPhongTheoMaPhong(maPhong, "Chưa thanh toán");
-                tenKhachHang = phieuDatPhong.getKhachHang().getTenKH();
-                String targetTimeStr = phieuDatPhong.getThoiGianTraPhong().toString();
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
-                LocalDateTime targetTime = LocalDateTime.parse(targetTimeStr, formatter);
-                LocalDateTime now = LocalDateTime.now();
-                Duration duration = Duration.between(now, targetTime);
-                long days = duration.toDays();
-                long hours = duration.toHours() % 24;
-                long minutes = duration.toMinutes() % 60;
-                thoiGianConLai = days + " Ngày " + hours + " Giờ " + minutes + " Phút "; 
+                itemphong = phieuDatPhongDao.createItemPhongTheoMaPhong(item.getMaPhong(), "Đã đặt");
             } else if (item.getTrangThai().equals("Đang thuê")) {
-                PhieuDatPhong phieuDatPhong = phieuDatPhongDao.getPhieuDatPhongTheoMaPhong(maPhong, "Đã thanh toán");
-                tenKhachHang = phieuDatPhong.getKhachHang().getTenKH();
-                String targetTimeStr = phieuDatPhong.getThoiGianTraPhong().toString();
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
-                LocalDateTime targetTime = LocalDateTime.parse(targetTimeStr, formatter);
-                LocalDateTime now = LocalDateTime.now();
-                Duration duration = Duration.between(now, targetTime);
-                long days = duration.toDays();
-                long hours = duration.toHours() % 24;
-                long minutes = duration.toMinutes() % 60;
-                thoiGianConLai = days + " Ngày " + hours + " Giờ " + minutes + " Phút "; 
+            	itemphong = phieuDatPhongDao.createItemPhongTheoMaPhong(item.getMaPhong(), "Đang thuê");
+            } else {
+            	itemphong = phieuDatPhongDao.createItemPhongTheoMaPhong(item.getMaPhong(), "Trống");
             }
-            itemPhong itemphong = new itemPhong(maPhong, tang, trangThai, tenKhachHang, loaiPhong, thoiGianConLai);
-            itemPanel.add(itemphong);
+            if(dsItemPhong.size() != 3) {
+            	dsItemPhong.add(itemphong);
+            }
+            else {
+            	JPanel rowPanel = new JPanel();
+            	rowPanel.setPreferredSize(new Dimension(itemPanel.getPreferredSize().width,200));
+            	rowPanel.setBackground(Color.white);
+            	rowPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
+            	rowPanel.setLayout(new GridLayout(1, 3, 10, 10));
+            	rowPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+            	dsItemPhong.forEach(x -> {
+            		rowPanel.add(x);
+            	});
+            	itemPanel.add(rowPanel);
+            	dsItemPhong.clear();
+            	
+            	dsItemPhong.add(itemphong);
+            }
         });
         
+        if(!dsItemPhong.isEmpty()) {
+        	int remain = 3 - dsItemPhong.size();
+        	JPanel rowPanel = new JPanel();
+        	rowPanel.setPreferredSize(new Dimension(itemPanel.getPreferredSize().width,200));
+        	rowPanel.setBackground(Color.white);
+        	rowPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
+        	rowPanel.setLayout(new GridLayout(1, 3, 10, 10));
+        	rowPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+        	dsItemPhong.forEach(x -> {
+        		rowPanel.add(x);
+        	});
+        	for(int i = 0; i < remain; i++) {
+        		JPanel pn = new JPanel();
+        		pn.setBackground(Color.white);
+        		rowPanel.add(pn);
+        	}
+        	itemPanel.add(rowPanel);
+        	dsItemPhong.clear();
+        }
+        
         scrollPane.setViewportView(itemPanel);
-        itemPanel.setLayout(new GridLayout(row, 3, 10, 10));
+        itemPanel.setLayout(new BoxLayout(itemPanel, BoxLayout.Y_AXIS));
         
         main.add(scrollPane, BorderLayout.CENTER);
     }

@@ -22,6 +22,28 @@ public class Phong_dao {
 	
 	public ArrayList<LoaiPhong> dsLP = loaiPhong_dao.danhSachLoaiPhong();
 	
+	public ArrayList<Phong> danhSachPhongTheoTrangThai(String trangThai1) {
+		ArrayList<Phong> dsPhong = new ArrayList<Phong>();
+		try {
+			Connection con = database.getInstance().getConnection();
+			String sql = "Select * from Phong where TrangThai = ?";
+			PreparedStatement stmt = con.prepareStatement(sql);
+	        stmt.setString(1, trangThai1);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {	
+				String maPhong = rs.getString(1);
+				String trangThai = rs.getString(2);
+				String tang = rs.getString(3);
+				LoaiPhong lp = loaiPhong_dao.timLoaiPhong(rs.getString(4));
+				Phong phong = new Phong(maPhong, trangThai,tang, lp);
+				dsPhong.add(phong);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return dsPhong;
+	}
+	
 	public ArrayList<Phong> danhSachPhong(){
 		ArrayList<Phong> dsPhong = new ArrayList<Phong>();
 		try {

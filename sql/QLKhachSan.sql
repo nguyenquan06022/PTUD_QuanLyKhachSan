@@ -66,10 +66,7 @@ CREATE TABLE DichVu (
 
 CREATE TABLE PhieuDatPhong (
 	MaPhieuDatPhong NVARCHAR(16),
-	ThoiGianNhanPhong DATETIME,
-	SoluongNguoi INT,
 	ThoiGianDat DATETIME,
-	ThoiGianTra DATETIME,
 	MaKH NVARCHAR(10),
 	MaNV NVARCHAR(8),
 	PRIMARY KEY (MaPhieuDatPhong),
@@ -80,6 +77,10 @@ CREATE TABLE PhieuDatPhong (
 CREATE TABLE ChiTietHoaDonPhong (
 	MaPhieuDatPhong NVARCHAR(16),
 	MaPhong NVARCHAR(4),
+	ThoiGianNhan DATETIME,
+	ThoiGianTra DATETIME,
+	CachThue NVARCHAR(20),
+	SoLuongNguoi INT,
 	PRIMARY KEY (MaPhieuDatPhong, MaPhong),
 	FOREIGN KEY (MaPhieuDatPhong) REFERENCES PhieuDatPhong (MaPhieuDatPhong),
 	FOREIGN KEY (MaPhong) REFERENCES Phong (MaPhong)
@@ -149,10 +150,10 @@ VALUES
 ('DV003', N'Bia', 30000, N'Đang sử dụng');
 
 -- Mã hóa mã phiếu đặt phòng theo kiểu DP + ngày tháng năm giờ phút giây
-INSERT INTO PhieuDatPhong (MaPhieuDatPhong, ThoiGianNhanPhong, ThoiGianTra, SoluongNguoi, ThoiGianDat, MaKH, MaNV)
+INSERT INTO PhieuDatPhong (MaPhieuDatPhong, ThoiGianDat, MaKH, MaNV)
 VALUES 
-('DP20240920100000', '2024-09-25 14:00:00', '2024-09-26 12:00:00', 3, '2024-09-20 10:00:00', 'KH001', 'NV002'),
-('DP20241211140000', '2024-12-12 14:00:00', '2024-12-16 14:00:00', 1, '2024-12-11 14:00:00', 'KH002', 'NV002');
+('DP20240920100000', '2024-09-20 10:00:00', 'KH001', 'NV002'),
+('DP20241211140000', '2024-12-11 14:00:00', 'KH002', 'NV002');
 
 -- Mã hóa mã hóa đơn theo kiểu HD + ngày tháng năm giờ phút giây
 INSERT INTO HoaDon (MaHoaDon, ThoiGianNhan, ThoiGianTra, NgayLapHoaDon, MaPhieuDatPhong, MaNV, MaKH, TrangThai)
@@ -161,11 +162,11 @@ VALUES
 ('HD20241211140000', '2024-12-12 14:00:00', '2024-12-16 14:00:00', null, 'DP20241211140000', 'NV002', 'KH002', N'Chưa thanh toán');
 
 -- Chèn dữ liệu vào bảng ChiTietHoaDonPhong (Liên kết hóa đơn với nhiều phòng)
-INSERT INTO ChiTietHoaDonPhong (MaPhieuDatPhong, MaPhong)
+INSERT INTO ChiTietHoaDonPhong (MaPhieuDatPhong, MaPhong, ThoiGianNhan, ThoiGianTra, CachThue, SoLuongNguoi)
 VALUES 
-('DP20240920100000', 'P101'),
-('DP20240920100000', 'P102'),
-('DP20240920100000', 'P201'),
-('DP20241211140000', 'P202');
+('DP20240920100000', 'P101','2024-09-25 14:00:00','2024-09-26 12:00:00',N'Qua đêm',3),
+('DP20240920100000', 'P102','2024-09-25 14:00:00','2024-09-26 12:00:00',N'Qua đêm',2),
+('DP20240920100000', 'P201','2024-09-25 14:00:00','2024-09-26 12:00:00',N'Qua đêm',2),
+('DP20241211140000', 'P202','2024-12-12 14:00:00', '2024-12-16 14:00:00', N'Theo ngày',1);
 
-SELECT * FROM HoaDon
+SELECT * FROM PhieuDatPhong pdp join ChiTietHoaDonPhong cthtp on pdp.MaPhieuDatPhong = cthtp.MaPhieuDatPhong
