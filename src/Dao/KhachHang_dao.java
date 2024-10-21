@@ -103,12 +103,13 @@ public class KhachHang_dao {
 			if (!dsKH.contains(khachHang)) {
 				System.out.println("Khách hàng không tồn tại");
 			} else {
-				String updateSql = "UPDATE KhachHang SET SDT = ?, GioiTinh = ?, QuocTich = ? WHERE MaKH = ?";
+				String updateSql = "UPDATE KhachHang SET HoTen = ?, SDT = ?, GioiTinh = ?, QuocTich = ? WHERE MaKH = ?";
 		        PreparedStatement updateStmt = connection.prepareStatement(updateSql);
-		        updateStmt.setString(1, khachHang.getSoDT());
-		        updateStmt.setInt(2, khachHang.getGioiTinh());
-		        updateStmt.setString(3, khachHang.getQuocTich());
-		        updateStmt.setString(4, khachHang.getMaKH());
+		        updateStmt.setString(1, khachHang.getTenKH());
+		        updateStmt.setString(2, khachHang.getSoDT());
+		        updateStmt.setInt(3, khachHang.getGioiTinh());
+		        updateStmt.setString(4, khachHang.getQuocTich());
+		        updateStmt.setString(5, khachHang.getMaKH());
 		        
 		        int rowsInserted = updateStmt.executeUpdate();
 	            if (rowsInserted > 0) {

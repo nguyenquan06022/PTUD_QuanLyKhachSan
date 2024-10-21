@@ -8,10 +8,16 @@ import java.awt.event.ActionListener;
 import javax.swing.table.DefaultTableModel; // Import DefaultTableModel
 import javax.swing.table.TableCellRenderer;
 
+import Dao.KhachHang_dao;
+import Entity.KhachHang;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Customer extends JPanel {
+public class Customer extends JPanel implements ActionListener, MouseListener{
     private JTextField tfTimKiem;
     private JTextField tfMaKhachHang;
     private JTextField tfHoTen;
@@ -19,6 +25,71 @@ public class Customer extends JPanel {
     private JTextField tfGioiTinh;
     private JTextField tfQuocTich;
     private JTextField tfDiemKhuyenMai;
+    private ArrayList<KhachHang> dsKH;
+    private KhachHang_dao khachHang_dao = new KhachHang_dao();
+	private DefaultTableModel model;
+	private JTable table;
+	private JButton btnTimKiem;
+	private JButton btnThem;
+	private JButton btnSua;
+	private JButton btnXacNhan;
+	private JButton btnHuy;
+	private int row = -1;
+	private int luaChon = 0;
+    
+    public ArrayList<KhachHang> danhSachKhachHang(){
+    	return khachHang_dao.danhSachKhachHang();
+    }
+    
+    public void khoaTruong() {
+        tfMaKhachHang.setEditable(false);
+        tfHoTen.setEditable(false);
+        tfSoDienThoai.setEditable(false);
+        tfGioiTinh.setEditable(false);
+        tfQuocTich.setEditable(false);
+        tfDiemKhuyenMai.setEditable(false);
+	}
+	
+	public void moTruong () {
+		tfMaKhachHang.setEditable(false);
+        tfHoTen.setEditable(true);
+        tfSoDienThoai.setEditable(true);
+        tfGioiTinh.setEditable(true);
+        tfQuocTich.setEditable(true);
+        tfDiemKhuyenMai.setEditable(false);
+	}
+
+    public void hienBang() {
+    	dsKH = danhSachKhachHang();
+    	dsKH.forEach(x -> themDong(x));
+    }
+    
+    public void themDong(KhachHang a) {
+		model.addRow(new Object[] {a.getMaKH(),
+				a.getTenKH(),
+				a.getSoDT(),
+				a.getGioiTinh()==1?"Nam":"Nu",
+				a.getQuocTich(),
+				a.getDiemKM()});
+	}
+    
+    public void xoaTrang() {
+    	tfMaKhachHang.setText("");
+        tfHoTen.setText("");
+        tfSoDienThoai.setText("");
+        tfGioiTinh.setText("");
+        tfQuocTich.setText("");
+        tfDiemKhuyenMai.setText("");
+    }
+    
+    public void hienKhachHang (KhachHang a) {
+    	tfMaKhachHang.setText(a.getMaKH());
+        tfHoTen.setText(a.getTenKH());
+        tfSoDienThoai.setText(a.getSoDT());
+        tfGioiTinh.setText(a.getGioiTinh()==1?"Nam":"Nu");
+        tfQuocTich.setText(a.getQuocTich());
+        tfDiemKhuyenMai.setText(String.valueOf(a.getDiemKM()));
+    }
 
     public Customer() {
         setLayout(new BorderLayout(0, 0));
@@ -42,7 +113,7 @@ public class Customer extends JPanel {
         tfTimKiem.setPreferredSize(new Dimension(300, 40)); // Thay đổi kích thước ở đây
         control.add(tfTimKiem);
 
-        JButton btnTimKiem = new JButton("");
+        btnTimKiem = new JButton("");
         btnTimKiem.setBackground(Color.LIGHT_GRAY);
         btnTimKiem.setIcon(new ImageIcon(Customer.class.getResource("/Photos/search.png")));
         btnTimKiem.setFont(new Font("Tahoma", Font.PLAIN, 15));
@@ -57,12 +128,8 @@ public class Customer extends JPanel {
 
         // Tạo bảng với các trường đã chỉ định
         String[] columnNames = {"Mã Khách Hàng","Họ Tên","Số điện thoại","Giới tính","Quốc tịch","Điểm khuyến mãi"};
-        Object[][] data = {
-            {"005", "NguyenWuan", "123", "Nam", "VN","100"}
-        }; // Dữ liệu khởi tạo cho bảng
-
-        DefaultTableModel model = new DefaultTableModel(data, columnNames);
-        JTable table = new JTable(model) {
+        model = new DefaultTableModel(columnNames,0);
+        table = new JTable(model) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 // Không cho phép chỉnh sửa
@@ -207,12 +274,12 @@ public class Customer extends JPanel {
         JPanel panel_10 = new JPanel();
         infor.add(panel_10);
         
-        JButton btnThem = new JButton("");
+        btnThem = new JButton("");
         btnThem.setIcon(new ImageIcon(Customer.class.getResource("/Photos/plus.png")));
         btnThem.setBackground(Color.LIGHT_GRAY);
         panel_10.add(btnThem);
         
-        JButton btnSua = new JButton("");
+        btnSua = new JButton("");
         btnSua.setIcon(new ImageIcon(Customer.class.getResource("/Photos/settings.png")));
         btnSua.setBackground(Color.LIGHT_GRAY);
         panel_10.add(btnSua);
@@ -220,15 +287,24 @@ public class Customer extends JPanel {
         JPanel panel_11 = new JPanel();
         infor.add(panel_11);
         
-        JButton btnXacNhan = new JButton("Xác nhận");
+        btnXacNhan = new JButton("Xác nhận");
         btnXacNhan.setFont(new Font("Tahoma", Font.BOLD, 15));
         btnXacNhan.setBackground(Color.LIGHT_GRAY);
         panel_11.add(btnXacNhan);
         
-        JButton btnHuy = new JButton("Hủy");
+        btnHuy = new JButton("Hủy");
         btnHuy.setFont(new Font("Tahoma", Font.BOLD, 15));
         btnHuy.setBackground(Color.LIGHT_GRAY);
         panel_11.add(btnHuy);
+        
+        btnTimKiem.addActionListener(this);
+        btnThem.addActionListener(this);
+        btnSua.addActionListener(this);
+        btnXacNhan.addActionListener(this);
+        btnHuy.addActionListener(this);
+        table.addMouseListener(this);
+        hienBang();
+        khoaTruong();
     }
 
     // Class cho ButtonRenderer (Không cần nữa vì đã bỏ cột Edit/Delete)
@@ -286,4 +362,129 @@ public class Customer extends JPanel {
             return label;
         }
     }
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		// TODO Auto-generated method stub
+		int row = table.getSelectedRow();
+		tfMaKhachHang.setText(model.getValueAt(row, 0).toString());
+		tfHoTen.setText(model.getValueAt(row, 1).toString());
+		tfGioiTinh.setText(model.getValueAt(row, 3).toString());
+		tfSoDienThoai.setText(model.getValueAt(row, 2).toString());
+		tfQuocTich.setText(model.getValueAt(row, 4).toString());
+		tfDiemKhuyenMai.setText(model.getValueAt(row, 5).toString());
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public KhachHang taoKhachHang() {
+    	return new KhachHang(tfMaKhachHang.getText(),
+							tfHoTen.getText(),
+							tfSoDienThoai.getText(),
+							tfGioiTinh.getText().equals("Nam")?1:0,
+							tfQuocTich.getText(),
+							tfDiemKhuyenMai.getText().length()>0?Long.parseLong(tfDiemKhuyenMai.getText()):0);
+    }
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		JButton btn= (JButton)e.getSource();
+		
+		if (btn.equals(btnTimKiem)) {
+			KhachHang kh = new KhachHang();
+			String timKiem = tfTimKiem.getText();
+			
+			if (timKiem.isEmpty()) {
+				JOptionPane.showMessageDialog(this, "Nhập vào trường tìm kiếm");
+			} else {
+				String kt = timKiem.substring(0, 2);
+				if (kt.equalsIgnoreCase("KH")) {
+					kh = khachHang_dao.timKhachHangTheoMa(timKiem);
+					model.getDataVector().removeAllElements();
+					themDong(kh);
+				} else if (kt.matches("0.")) {
+					kh = khachHang_dao.timKhachHangTheoSDT(timKiem);
+					model.getDataVector().removeAllElements();
+					themDong(kh);
+				} else {
+					List<KhachHang> ds = khachHang_dao.timKhachHangTheoTen(timKiem);
+					model.getDataVector().removeAllElements();
+					ds.forEach(x -> themDong(x));
+				}
+			}
+//			if (kh == null && ds == null) {
+//				model.getDataVector().removeAllElements();
+//				JOptionPane.showMessageDialog(this, "Không tìm thấy");
+//			}
+//				
+		}
+		if (btn.equals(btnThem)) {
+			xoaTrang();
+			moTruong();
+			luaChon = 1;
+		}
+		if (btn.equals(btnSua)) {
+			row  = table.getSelectedRow();
+			if(row>=0) {
+				moTruong();
+				luaChon = 2;
+			}
+			else{
+				JOptionPane.showMessageDialog(this, "Cần chọn khách hàng");
+			}
+		}
+		if (btn.equals(btnHuy)) {
+			model.getDataVector().removeAllElements();
+			xoaTrang();
+			khoaTruong();
+			hienBang();
+			luaChon = 0;
+			row = -1;
+		}
+		if (btn.equals(btnXacNhan)) {
+    		if (luaChon == 1) {
+    			KhachHang a  = taoKhachHang();
+    			boolean dung = khachHang_dao.themKhachHang(a);
+    			if (dung==true) {
+    				JOptionPane.showMessageDialog(this, "Thêm khách hàng mới thành công");
+    			} else JOptionPane.showMessageDialog(this, "Thêm khách hàng mới không thành công");
+    			model.getDataVector().removeAllElements();
+    			hienBang();
+    			
+    		} else if (luaChon == 2) {
+    			KhachHang b  = taoKhachHang();
+				boolean dung = khachHang_dao.suaKhachHang(b);
+				if (dung==true) {
+    				JOptionPane.showMessageDialog(this, "Sửa khách hàng thành công");
+    			} else JOptionPane.showMessageDialog(this, "Sửa khách hàng không thành công");
+				model.getDataVector().removeAllElements();
+				hienBang();
+    		}
+    		
+    		xoaTrang();
+    		khoaTruong();
+    	}
+	}
 }
