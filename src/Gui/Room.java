@@ -8,15 +8,76 @@ import java.awt.event.ActionListener;
 import javax.swing.table.DefaultTableModel; // Import DefaultTableModel
 import javax.swing.table.TableCellRenderer;
 
+import Dao.LoaiPhong_dao;
+import Dao.Phong_dao;
+import Entity.KhachHang;
+import Entity.Phong;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Room extends JPanel {
+public class Room extends JPanel implements ActionListener, MouseListener{
     private JTextField tfTimKiem;
     private JTextField tfMaPhong;
     private JTextField tfTrangThai;
     private JTextField tfTenLoaiPhong;
-    private JTextField textField;
+    private ArrayList<Phong> dsPhong;
+    private Phong_dao phong_dao = new Phong_dao();
+	private DefaultTableModel model;
+	private JTable table;
+	private JButton btnTimKiem;
+	private JButton btnThem;
+	private JButton btnSua;
+	private JButton btnXacNhan;
+	private JButton btnHuy;
+	private JTextField tfLau;
+	private LoaiPhong_dao loaiPhong_dao = new LoaiPhong_dao();
+	private int luaChon = 0;
+	private int row = -1;
+    
+    public ArrayList<Phong> danhSachPhong(){
+    	return phong_dao.danhSachPhong();
+    }
+    
+    public void khoaTrang () {
+    	tfMaPhong.setEditable(false);
+    	tfTrangThai.setEditable(false);
+    	tfTenLoaiPhong.setEditable(false);
+    	tfLau.setEditable(false);
+    }
+    
+    public void moKhoaTruong() {
+    	tfMaPhong.setEditable(false);
+    	tfTrangThai.setEditable(true);
+    	tfTenLoaiPhong.setEditable(true);
+    	tfLau.setEditable(true);
+    }
+    
+    public void hienTable() {
+    	dsPhong = danhSachPhong();
+    	model.getDataVector().removeAllElements();
+    	dsPhong.forEach(x -> themDong(x));
+    }
+    
+    public void themDong(Phong a) {
+    	model.addRow(new Object[] {
+    			a.getMaPhong(),
+    			a.getTrangThai(),
+    			a.getTang(),
+    			a.getLoaiPhong().getTenLoaiPhong()
+    	});
+    }
+    
+    public void xoaTrang() {
+    	tfMaPhong.setText("");
+    	tfTrangThai.setText("");
+    	tfTenLoaiPhong.setText("");
+    	tfLau.setText("");
+    	tfTimKiem.setText("");
+    }
 
     public Room() {
         setLayout(new BorderLayout(0, 0));
@@ -40,7 +101,7 @@ public class Room extends JPanel {
         tfTimKiem.setPreferredSize(new Dimension(300, 40)); // Thay đổi kích thước ở đây
         control.add(tfTimKiem);
 
-        JButton btnTimKiem = new JButton("");
+        btnTimKiem = new JButton("");
         btnTimKiem.setBackground(Color.LIGHT_GRAY);
         btnTimKiem.setIcon(new ImageIcon(Room.class.getResource("/Photos/search.png")));
         btnTimKiem.setFont(new Font("Tahoma", Font.PLAIN, 15));
@@ -54,13 +115,10 @@ public class Room extends JPanel {
         mainPane.setBorder(new EmptyBorder(20, 20, 20, 20)); // Thêm padding 20 pixel
 
         // Tạo bảng với các trường đã chỉ định
-        String[] columnNames = {"Mã phòng","Trạng thái","Tên loại phòng","Lầu"};
-        Object[][] data = {
-            {"001", "Trống", "VIP","Lầu 1"}
-        }; // Dữ liệu khởi tạo cho bảng
-
-        DefaultTableModel model = new DefaultTableModel(data, columnNames);
-        JTable table = new JTable(model) {
+        String[] columnNames = {"Mã phòng","Trạng thái","Tầng","Tên loại phòng"};
+         
+        model = new DefaultTableModel(columnNames, 0);
+        table = new JTable(model) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 // Không cho phép chỉnh sửa
@@ -147,27 +205,27 @@ public class Room extends JPanel {
         JPanel panel_12 = new JPanel();
         panel_5.add(panel_12);
         
-        JLabel lbLau = new JLabel("Lầu");
+        JLabel lbLau = new JLabel("Tầng");
         lbLau.setFont(new Font("Tahoma", Font.BOLD, 15));
         panel_12.add(lbLau);
         
         JPanel panel_13 = new JPanel();
         panel_5.add(panel_13);
         
-        textField = new JTextField();
-        textField.setFont(new Font("Tahoma", Font.PLAIN, 15));
-        panel_13.add(textField);
-        textField.setColumns(10);
+        tfLau = new JTextField();
+        tfLau.setFont(new Font("Tahoma", Font.PLAIN, 15));
+        panel_13.add(tfLau);
+        tfLau.setColumns(10);
 
         JPanel panel_10 = new JPanel();
         infor.add(panel_10);
         
-        JButton btnThem = new JButton("");
+        btnThem = new JButton("");
         btnThem.setBackground(Color.LIGHT_GRAY);
         btnThem.setIcon(new ImageIcon(Room.class.getResource("/Photos/plus.png")));
         panel_10.add(btnThem);
         
-        JButton btnSua = new JButton("");
+        btnSua = new JButton("");
         btnSua.setBackground(Color.LIGHT_GRAY);
         btnSua.setIcon(new ImageIcon(Room.class.getResource("/Photos/settings.png")));
         panel_10.add(btnSua);
@@ -175,15 +233,23 @@ public class Room extends JPanel {
         JPanel panel_11 = new JPanel();
         infor.add(panel_11);
         
-        JButton btnXacNhan = new JButton("Xác nhận");
+        btnXacNhan = new JButton("Xác nhận");
         btnXacNhan.setBackground(Color.LIGHT_GRAY);
         btnXacNhan.setFont(new Font("Tahoma", Font.BOLD, 15));
         panel_11.add(btnXacNhan);
         
-        JButton btnHuy = new JButton("Hủy");
+        btnHuy = new JButton("Hủy");
         btnHuy.setBackground(Color.LIGHT_GRAY);
         btnHuy.setFont(new Font("Tahoma", Font.BOLD, 15));
         panel_11.add(btnHuy);
+        btnTimKiem.addActionListener(this);
+        btnThem.addActionListener(this);
+        btnSua.addActionListener(this);
+        btnXacNhan.addActionListener(this);
+        btnHuy.addActionListener(this);
+        table.addMouseListener(this);
+        khoaTrang();
+        hienTable();
     }
 
     // Class cho ButtonRenderer (Không cần nữa vì đã bỏ cột Edit/Delete)
@@ -241,4 +307,120 @@ public class Room extends JPanel {
             return label;
         }
     }
+
+    public Phong taoPhong() {
+    	return new Phong(tfMaPhong.getText(),
+    					tfTrangThai.getText(),
+    					tfLau.getText(),
+    					loaiPhong_dao.timLoaiPhong(tfTenLoaiPhong.getText()));
+    }
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		JButton btn= (JButton)e.getSource();
+		
+		if (btn.equals(btnTimKiem)) {
+			String timKiem = tfTimKiem.getText();
+			
+			if (timKiem.isEmpty()) {
+				JOptionPane.showMessageDialog(this, "Nhập vào trường tìm kiếm");
+			} else {
+				Phong phong = phong_dao.timPhongTheoMa(timKiem);
+				model.getDataVector().removeAllElements();
+				themDong(phong);
+			}
+//			if (kh == null && ds == null) {
+//				model.getDataVector().removeAllElements();
+//				JOptionPane.showMessageDialog(this, "Không tìm thấy");
+//			}
+//				
+		}
+		if (btn.equals(btnThem)) {
+			xoaTrang();
+			moKhoaTruong();
+			luaChon = 1;
+		}
+		if (btn.equals(btnSua)) {
+			row  = table.getSelectedRow();
+			if(row>=0) {
+				moKhoaTruong();
+				luaChon = 2;
+			}
+			else{
+				JOptionPane.showMessageDialog(this, "Cần chọn khách phòng");
+			}
+		}
+		if (btn.equals(btnHuy)) {
+			model.getDataVector().removeAllElements();
+			xoaTrang();
+			khoaTrang();
+			hienTable();
+			luaChon = 0;
+			row = -1;
+		}
+		if (btn.equals(btnXacNhan)) {
+    		if (luaChon == 1) {
+    			Phong a = taoPhong();
+    			boolean dung = phong_dao.themPhong(a, Integer.parseInt(a.getTang()));
+    			if (dung==true) {
+    				JOptionPane.showMessageDialog(this, "Thêm phòng mới thành công");
+    			} else JOptionPane.showMessageDialog(this, "Thêm phòng mới không thành công");
+    			model.getDataVector().removeAllElements();
+    			hienTable();
+    			
+    		} else if (luaChon == 2) {
+    			Phong b = taoPhong();
+				boolean dung = phong_dao.suaPhong(b);
+				if (dung==true) {
+    				JOptionPane.showMessageDialog(this, "Sửa phòng thành công");
+    			} else JOptionPane.showMessageDialog(this, "Sửa phòng không thành công");
+				model.getDataVector().removeAllElements();
+				hienTable();
+    		}
+    		
+    		xoaTrang();
+    		khoaTrang();
+    	}
+	}
+	
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		// TODO Auto-generated method stub
+		int row = table.getSelectedRow();
+		tfMaPhong.setText(model.getValueAt(row, 0).toString());
+		tfTrangThai.setText(model.getValueAt(row, 1).toString());
+		tfTenLoaiPhong.setText(model.getValueAt(row, 3).toString());
+		tfLau.setText(model.getValueAt(row, 2).toString());
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
 }

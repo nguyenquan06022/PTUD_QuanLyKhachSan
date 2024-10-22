@@ -68,7 +68,7 @@ public class Customer extends JPanel implements ActionListener, MouseListener{
 		model.addRow(new Object[] {a.getMaKH(),
 				a.getTenKH(),
 				a.getSoDT(),
-				a.getGioiTinh()==1?"Nam":"Nu",
+				a.getGioiTinh()==1?"Nam":"Nữ",
 				a.getQuocTich(),
 				a.getDiemKM()});
 	}
@@ -86,7 +86,7 @@ public class Customer extends JPanel implements ActionListener, MouseListener{
     	tfMaKhachHang.setText(a.getMaKH());
         tfHoTen.setText(a.getTenKH());
         tfSoDienThoai.setText(a.getSoDT());
-        tfGioiTinh.setText(a.getGioiTinh()==1?"Nam":"Nu");
+        tfGioiTinh.setText(a.getGioiTinh()==1?"Nam":"Nữ");
         tfQuocTich.setText(a.getQuocTich());
         tfDiemKhuyenMai.setText(String.valueOf(a.getDiemKM()));
     }
