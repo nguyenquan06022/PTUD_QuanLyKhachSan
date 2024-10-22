@@ -32,8 +32,8 @@ public class Service extends JPanel implements ActionListener, MouseListener{
 	private JButton btnXacNhan;
 	private JButton btnHuy;
 	private JButton btnTimKiem;
-	private int luaChon;
-	private int row;
+	private int luaChon = 0;
+	private int row = -1;
     
     public ArrayList<DichVu> danhSachDichVu(){
 		return dichVu_dao.danhSachDichVu();

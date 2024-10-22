@@ -4,11 +4,56 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import java.awt.*;
-import java.awt.geom.RoundRectangle2D;
+import java.security.Timestamp;
 
 public class itemPhong extends RoundedPanel{
-    public itemPhong(String maPhong ,String tang, String trangThai, String tenKhachHang, String loaiPhong, String thoiGianConLai) {
+	private static final long serialVersionUID = 1L;
+	private String sdt;
+	private String maPhong;
+	private String tang;
+	private String trangThai;
+	private String tenKhachHang;
+	private String loaiPhong;
+	private String thoiGianConLai;
+	
+	public String getSdt() {
+		return this.sdt;
+	}
+	
+	public String getMaPhong() {
+		return this.maPhong;
+	}
+	
+	public String getTang() {
+		return this.tang;
+	}
+	
+	public String getTrangThai() {
+		return this.trangThai;
+	}
+	
+	public String getTenKhachHang() {
+		return this.tenKhachHang;
+	}
+	
+	public String getLoaiPhong() {
+		return this.loaiPhong;
+	}
+	
+	public String getThoiGianConLai() {
+		return this.thoiGianConLai;
+	}
+	
+ 	public itemPhong(String maPhong ,String tang, String trangThai, String tenKhachHang, String loaiPhong, String thoiGianConLai, String sdt) {
         super(30);
+        this.maPhong = maPhong;
+        this.tang = tang;
+        this.trangThai = trangThai;
+        this.tenKhachHang = tenKhachHang;
+        this.loaiPhong = loaiPhong;
+        this.thoiGianConLai = thoiGianConLai;
+        this.sdt = sdt;
+        
     	Color colortext = Color.black;
         Color colorbg = SystemColor.activeCaptionBorder;
         if(trangThai.equals("Đã đặt")) {
@@ -73,7 +118,14 @@ public class itemPhong extends RoundedPanel{
         lbName.setForeground(colortext);
         lbName.setHorizontalAlignment(SwingConstants.CENTER);
         lbName.setFont(new Font("Tahoma", Font.BOLD, 15));
-        panel_6.add(lbName);
+        
+        JLabel lbSdt = new JLabel(sdt);
+        lbSdt.setForeground(colortext);
+        lbSdt.setHorizontalAlignment(SwingConstants.CENTER);
+        lbSdt.setFont(new Font("Tahoma", Font.BOLD, 15));
+        
+        panel_6.add(lbName,BorderLayout.CENTER);
+        panel_6.add(lbSdt,BorderLayout.SOUTH);
         
         JPanel panel_2 = new JPanel();
         panel_2.setBackground(colorbg);
@@ -100,6 +152,8 @@ public class itemPhong extends RoundedPanel{
         if(trangThai.equals("Trống")) {
         	lbRemain.setText("");
         	lbName.setText("");
+        	lbSdt.setText("");
+        	this.sdt = "";
         }
     }
 }

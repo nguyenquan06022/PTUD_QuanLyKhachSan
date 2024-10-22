@@ -7,29 +7,28 @@ import ConnectDB.database;
 import Dao.LoaiPhong_dao;
 import Dao.PhieuDatPhong_dao;
 import Dao.Phong_dao;
-import Entity.LoaiPhong;
-import Entity.PhieuDatPhong;
 import Entity.Phong;
 
 import java.awt.*;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+
 import javax.swing.border.BevelBorder;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class Home extends JPanel {
-    private LoaiPhong_dao loaiPhongDao = new LoaiPhong_dao();
+	
+	private static final long serialVersionUID = 1L;
+	private LoaiPhong_dao loaiPhongDao = new LoaiPhong_dao();
     private Phong_dao phongDao = new Phong_dao();
     private PhieuDatPhong_dao phieuDatPhongDao = new PhieuDatPhong_dao();
     private JPanel itemPanel = new JPanel();
-    private  ArrayList<itemPhong> dsItemPhong = new ArrayList<itemPhong>();
+    private ArrayList<itemPhong> dsItemPhong = new ArrayList<itemPhong>();
+    private ArrayList<itemPhong> dsCurItemPhong = new ArrayList<itemPhong>();
+    private JTextField tfSoDienThoai;
+    private JButton btnSearch;
+    
     public Home() {
-
         try {
             database.getInstance().Connect();
         } catch (Exception e) {
@@ -43,10 +42,111 @@ public class Home extends JPanel {
         JPanel panel = new JPanel();
         setBorder(new EmptyBorder(20, 20, 20, 20));
         add(panel, BorderLayout.NORTH);
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         
-        JLabel lblNewLabel = new JLabel("Trang Chủ");
-        lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 20));
-        panel.add(lblNewLabel);
+        JPanel panel_12 = new JPanel();
+        panel.add(panel_12);
+        
+        JLabel lblTrangChu = new JLabel("Trang Chủ");
+        lblTrangChu.setFont(new Font("Tahoma", Font.BOLD, 20));
+        panel_12.add(lblTrangChu);
+        
+        JPanel panel_13 = new JPanel();
+        panel.add(panel_13);
+        panel_13.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+        
+        JPanel panel_14 = new JPanel();
+        panel_13.add(panel_14);
+        
+        JLabel lblNewLabel = new JLabel("Tìm theo số điện thoại");
+        lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 15));
+        lblNewLabel.setHorizontalAlignment(SwingConstants.TRAILING);
+        panel_14.add(lblNewLabel);
+        
+        JPanel panel_15 = new JPanel();
+        panel_13.add(panel_15);
+        
+        btnSearch = new JButton("");
+        btnSearch.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		itemPanel.removeAll();
+        		dsCurItemPhong.forEach(item -> {
+        			if(tfSoDienThoai.getText().trim().equals(item.getSdt()) && !item.getSdt().equals("")) {
+        				if(dsItemPhong.size() != 3) {
+                            dsItemPhong.add(item);
+                        } else {
+                            JPanel rowPanel = new JPanel();
+                            rowPanel.setPreferredSize(new Dimension(itemPanel.getPreferredSize().width,150));
+                            rowPanel.setBackground(Color.white);
+                            rowPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
+                            rowPanel.setLayout(new GridLayout(1, 3, 10, 10));
+                            rowPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+                            dsItemPhong.forEach(x -> {
+                                rowPanel.add(x);
+                            });
+                            itemPanel.add(rowPanel);
+                            dsItemPhong.clear();
+                            
+                            dsItemPhong.add(item);
+                        }
+        				item.addMouseListener(new java.awt.event.MouseAdapter() {
+        	                @Override
+        	                public void mouseClicked(java.awt.event.MouseEvent e) {
+        	                	System.out.println(item.getTrangThai());
+        	                	if(item.getTrangThai().equals("Đã đặt")) {
+        	                		//String maPhong, String tang,String loaiPhong, String tenKhachHang, String sdt, String thoiGianDat, String thoiGianNhan, String thoiGianTra, String soLuongNguoiThue, String hinhThucThue
+        	                		String thoiGianDat = phieuDatPhongDao.getThongTinForNhanPhong("ThoiGianDat",item.getMaPhong());
+        	                		String thoiGianNhan = phieuDatPhongDao.getThongTinForNhanPhong("ThoiGianNhan", item.getMaPhong());
+        	                		String thoiGianTra = phieuDatPhongDao.getThongTinForNhanPhong("ThoiGianTra", item.getMaPhong());
+        	                		String soLuongNguoi = phieuDatPhongDao.getThongTinForNhanPhong("SoLuongNguoi", item.getMaPhong());
+        	                		String hinhThucThue = phieuDatPhongDao.getThongTinForNhanPhong("Cach Thue", item.getMaPhong());
+        	                		new NhanPhong(item.getMaPhong(),item.getTang(),item.getLoaiPhong(),item.getTenKhachHang(),item.getSdt(),thoiGianDat,thoiGianNhan,thoiGianTra,soLuongNguoi,hinhThucThue);
+        	                	}
+        	                	else if(item.getTrangThai().equals("Đang thuê")) {
+        	                		
+        	                	}
+        	                }
+        	            });
+        			}
+        		});
+        		if(!dsItemPhong.isEmpty()) {
+                    int remain = 3 - dsItemPhong.size();
+                    JPanel rowPanel = new JPanel();
+                    rowPanel.setPreferredSize(new Dimension(itemPanel.getPreferredSize().width,150));
+                    rowPanel.setBackground(Color.white);
+                    rowPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
+                    rowPanel.setLayout(new GridLayout(1, 3, 10, 10));
+                    rowPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+                    dsItemPhong.forEach(x -> {
+                        rowPanel.add(x);
+                    });
+                    for(int i = 0; i < remain; i++) {
+                        JPanel pn = new JPanel();
+                        pn.setBackground(Color.white);
+                        rowPanel.add(pn);
+                    }
+                    itemPanel.add(rowPanel);
+                    dsItemPhong.clear();
+                }
+
+                itemPanel.revalidate();
+                itemPanel.repaint();
+        	}
+        });
+        btnSearch.setIcon(new ImageIcon(Home.class.getResource("/Photos/search.png")));
+        btnSearch.setSelectedIcon(new ImageIcon(Home.class.getResource("/Photos/search.png")));
+        btnSearch.setFont(new Font("Tahoma", Font.BOLD, 15));
+        
+        tfSoDienThoai = new JTextField();
+        tfSoDienThoai.setPreferredSize(new Dimension(200, btnSearch.getPreferredSize().height));
+        tfSoDienThoai.setFont(new Font("Tahoma", Font.BOLD, 15));
+        panel_15.add(tfSoDienThoai);
+        tfSoDienThoai.setColumns(20);
+        
+        panel_15.add(btnSearch);
+        
+        JPanel panel_16 = new JPanel();
+        panel_13.add(panel_16);
 
         JPanel panel_1 = new JPanel();
         add(panel_1, BorderLayout.CENTER);
@@ -56,6 +156,10 @@ public class Home extends JPanel {
         pnControl.setBorder(new EmptyBorder(10, 10, 10, 10));
         pnControl.setLayout(new BoxLayout(pnControl, BoxLayout.Y_AXIS));
         panel_1.add(pnControl, BorderLayout.WEST);
+        
+        JPanel panel_11 = new JPanel();
+        pnControl.add(panel_11);
+        panel_11.setLayout(new BoxLayout(panel_11, BoxLayout.Y_AXIS));
         
         JPanel panel_5 = new JPanel();
         pnControl.add(panel_5);
@@ -126,81 +230,93 @@ public class Home extends JPanel {
         });
         panel_7.add(cbbLau);
         
-        ItemListener comboBoxListener = new ItemListener() {
+        ActionListener comboBoxListener = new ActionListener() {
             @Override
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED) {
-                    String trangThai = (String) cbbTrangThai.getSelectedItem();
-                    String loaiPhong = (String) cbbLoaiPhong.getSelectedItem();
-                    String lau = (String) cbbLau.getSelectedItem();
+            public void actionPerformed(ActionEvent e) {
+                String trangThai = (String) cbbTrangThai.getSelectedItem();
+                String loaiPhong = (String) cbbLoaiPhong.getSelectedItem();
+                String lau = (String) cbbLau.getSelectedItem();
+                itemPanel.removeAll();
 
-                    itemPanel.removeAll(); // Xóa tất cả các item hiện tại
-
-                    // Lọc danh sách phòng dựa trên các tiêu chí từ combobox
-                    dsPhong.stream()
-                        .filter(item -> (trangThai.equals("Tất Cả") || item.getTrangThai().equals(trangThai)))
-                        .filter(item -> (loaiPhong.equals("Tất Cả") || item.getLoaiPhong().getTenLoaiPhong().equals(loaiPhong)))
-                        .filter(item -> (lau.equals("Tất Cả") || item.getTang().equals(lau)))
-                        .forEach(item -> {
-                            itemPhong itemphong;
-                            if (item.getTrangThai().equals("Đã đặt")) {
-                                itemphong = phieuDatPhongDao.createItemPhongTheoMaPhong(item.getMaPhong(), "Đã đặt");
-                            } else if (item.getTrangThai().equals("Đang thuê")) {
-                                itemphong = phieuDatPhongDao.createItemPhongTheoMaPhong(item.getMaPhong(), "Đang thuê");
-                            } else {
-                                itemphong = phieuDatPhongDao.createItemPhongTheoMaPhong(item.getMaPhong(), "Trống");
-                            }
-
-                            if(dsItemPhong.size() != 3) {
-                                dsItemPhong.add(itemphong);
-                            } else {
-                                JPanel rowPanel = new JPanel();
-                                rowPanel.setPreferredSize(new Dimension(itemPanel.getPreferredSize().width,200));
-                                rowPanel.setBackground(Color.white);
-                                rowPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
-                                rowPanel.setLayout(new GridLayout(1, 3, 10, 10));
-                                rowPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-                                dsItemPhong.forEach(x -> {
-                                    rowPanel.add(x);
-                                });
-                                itemPanel.add(rowPanel);
-                                dsItemPhong.clear();
-                                
-                                dsItemPhong.add(itemphong);
-                            }
-                        });
-                    
-                    // Thêm các phòng còn lại nếu không đủ 3 phòng
-                    if(!dsItemPhong.isEmpty()) {
-                        int remain = 3 - dsItemPhong.size();
-                        JPanel rowPanel = new JPanel();
-                        rowPanel.setPreferredSize(new Dimension(itemPanel.getPreferredSize().width,200));
-                        rowPanel.setBackground(Color.white);
-                        rowPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
-                        rowPanel.setLayout(new GridLayout(1, 3, 10, 10));
-                        rowPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-                        dsItemPhong.forEach(x -> {
-                            rowPanel.add(x);
-                        });
-                        for(int i = 0; i < remain; i++) {
-                            JPanel pn = new JPanel();
-                            pn.setBackground(Color.white);
-                            rowPanel.add(pn);
+                dsPhong.stream()
+                    .filter(item -> (trangThai.equals("Tất Cả") || item.getTrangThai().equals(trangThai)))
+                    .filter(item -> (loaiPhong.equals("Tất Cả") || item.getLoaiPhong().getTenLoaiPhong().equals(loaiPhong)))
+                    .filter(item -> (lau.equals("Tất Cả") || item.getTang().equals(lau)))
+                    .forEach(item -> {
+                        itemPhong itemphong;
+                        if (item.getTrangThai().equals("Đã đặt")) {
+                            itemphong = phieuDatPhongDao.createItemPhongTheoMaPhong(item.getMaPhong(), "Đã đặt");
+                        } else if (item.getTrangThai().equals("Đang thuê")) {
+                            itemphong = phieuDatPhongDao.createItemPhongTheoMaPhong(item.getMaPhong(), "Đang thuê");
+                        } else {
+                            itemphong = phieuDatPhongDao.createItemPhongTheoMaPhong(item.getMaPhong(), "Trống");
                         }
-                        itemPanel.add(rowPanel);
-                        dsItemPhong.clear();
-                    }
 
-                    itemPanel.revalidate(); // Xác nhận thay đổi
-                    itemPanel.repaint(); // Vẽ lại giao diện
+                        itemphong.addMouseListener(new java.awt.event.MouseAdapter() {
+        	                @Override
+        	                public void mouseClicked(java.awt.event.MouseEvent e) {
+        	                	if(itemphong.getTrangThai().equals("Đã đặt")) {
+        	                		//String maPhong, String tang,String loaiPhong, String tenKhachHang, String sdt, String thoiGianDat, String thoiGianNhan, String thoiGianTra, String soLuongNguoiThue, String hinhThucThue
+        	                		String thoiGianDat = phieuDatPhongDao.getThongTinForNhanPhong("ThoiGianDat",itemphong.getMaPhong());
+        	                		String thoiGianNhan = phieuDatPhongDao.getThongTinForNhanPhong("ThoiGianNhan", itemphong.getMaPhong());
+        	                		String thoiGianTra = phieuDatPhongDao.getThongTinForNhanPhong("ThoiGianTra", itemphong.getMaPhong());
+        	                		String soLuongNguoi = phieuDatPhongDao.getThongTinForNhanPhong("SoLuongNguoi", itemphong.getMaPhong());
+        	                		String hinhThucThue = phieuDatPhongDao.getThongTinForNhanPhong("Cach Thue", itemphong.getMaPhong());
+        	                		new NhanPhong(itemphong.getMaPhong(),itemphong.getTang(),itemphong.getLoaiPhong(),itemphong.getTenKhachHang(),itemphong.getSdt(),thoiGianDat,thoiGianNhan,thoiGianTra,soLuongNguoi,hinhThucThue);
+        	                	}
+        	                	else if(itemphong.getTrangThai().equals("Đang thuê")) {
+        	                		
+        	                	}
+        	                }
+        	            });
+
+                        if(dsItemPhong.size() != 3) {
+                            dsItemPhong.add(itemphong);
+                        } else {
+                            JPanel rowPanel = new JPanel();
+                            rowPanel.setPreferredSize(new Dimension(itemPanel.getPreferredSize().width,150));
+                            rowPanel.setBackground(Color.white);
+                            rowPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
+                            rowPanel.setLayout(new GridLayout(1, 3, 10, 10));
+                            rowPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+                            dsItemPhong.forEach(x -> {
+                                rowPanel.add(x);
+                            });
+                            itemPanel.add(rowPanel);
+                            dsItemPhong.clear();
+                            dsItemPhong.add(itemphong);
+                        }
+                    });
+
+                if(!dsItemPhong.isEmpty()) {
+                    int remain = 3 - dsItemPhong.size();
+                    JPanel rowPanel = new JPanel();
+                    rowPanel.setPreferredSize(new Dimension(itemPanel.getPreferredSize().width,150));
+                    rowPanel.setBackground(Color.white);
+                    rowPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
+                    rowPanel.setLayout(new GridLayout(1, 3, 10, 10));
+                    rowPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+                    dsItemPhong.forEach(x -> {
+                        rowPanel.add(x);
+                    });
+                    for(int i = 0; i < remain; i++) {
+                        JPanel pn = new JPanel();
+                        pn.setBackground(Color.white);
+                        rowPanel.add(pn);
+                    }
+                    itemPanel.add(rowPanel);
+                    dsItemPhong.clear();
                 }
+
+                itemPanel.revalidate();
+                itemPanel.repaint();
             }
         };
 
         
-        cbbTrangThai.addItemListener(comboBoxListener);
-        cbbLoaiPhong.addItemListener(comboBoxListener);
-        cbbLau.addItemListener(comboBoxListener);
+        cbbTrangThai.addActionListener(comboBoxListener);
+        cbbLoaiPhong.addActionListener(comboBoxListener);
+        cbbLau.addActionListener(comboBoxListener);
 
         JPanel main = new JPanel();
         main.setBackground(SystemColor.menu);
@@ -223,14 +339,34 @@ public class Home extends JPanel {
             } else {
             	itemphong = phieuDatPhongDao.createItemPhongTheoMaPhong(item.getMaPhong(), "Trống");
             }
+            
+            itemphong.addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mouseClicked(java.awt.event.MouseEvent e) {
+                	if(itemphong.getTrangThai().equals("Đã đặt")) {
+                		//String maPhong, String tang,String loaiPhong, String tenKhachHang, String sdt, String thoiGianDat, String thoiGianNhan, String thoiGianTra, String soLuongNguoiThue, String hinhThucThue
+                		String thoiGianDat = phieuDatPhongDao.getThongTinForNhanPhong("ThoiGianDat",itemphong.getMaPhong());
+                		String thoiGianNhan = phieuDatPhongDao.getThongTinForNhanPhong("ThoiGianNhan", itemphong.getMaPhong());
+                		String thoiGianTra = phieuDatPhongDao.getThongTinForNhanPhong("ThoiGianTra", itemphong.getMaPhong());
+                		String soLuongNguoi = phieuDatPhongDao.getThongTinForNhanPhong("SoLuongNguoi", itemphong.getMaPhong());
+                		String hinhThucThue = phieuDatPhongDao.getThongTinForNhanPhong("Cach Thue", itemphong.getMaPhong());
+                		new NhanPhong(itemphong.getMaPhong(),itemphong.getTang(),itemphong.getLoaiPhong(),itemphong.getTenKhachHang(),itemphong.getSdt(),thoiGianDat,thoiGianNhan,thoiGianTra,soLuongNguoi,hinhThucThue);
+                	}
+                	else if(itemphong.getTrangThai().equals("Đang thuê")) {
+                		
+                	}
+                }
+            });
+
+            
             if(dsItemPhong.size() != 3) {
             	dsItemPhong.add(itemphong);
             }
             else {
             	JPanel rowPanel = new JPanel();
-            	rowPanel.setPreferredSize(new Dimension(itemPanel.getPreferredSize().width,200));
+            	rowPanel.setPreferredSize(new Dimension(itemPanel.getPreferredSize().width,150));
             	rowPanel.setBackground(Color.white);
-            	rowPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
+            	rowPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
             	rowPanel.setLayout(new GridLayout(1, 3, 10, 10));
             	rowPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
             	dsItemPhong.forEach(x -> {
@@ -241,14 +377,15 @@ public class Home extends JPanel {
             	
             	dsItemPhong.add(itemphong);
             }
+            dsCurItemPhong.add(itemphong);
         });
         
         if(!dsItemPhong.isEmpty()) {
         	int remain = 3 - dsItemPhong.size();
         	JPanel rowPanel = new JPanel();
-        	rowPanel.setPreferredSize(new Dimension(itemPanel.getPreferredSize().width,200));
+        	rowPanel.setPreferredSize(new Dimension(itemPanel.getPreferredSize().width,150));
         	rowPanel.setBackground(Color.white);
-        	rowPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
+        	rowPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
         	rowPanel.setLayout(new GridLayout(1, 3, 10, 10));
         	rowPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
         	dsItemPhong.forEach(x -> {
@@ -267,5 +404,6 @@ public class Home extends JPanel {
         itemPanel.setLayout(new BoxLayout(itemPanel, BoxLayout.Y_AXIS));
         
         main.add(scrollPane, BorderLayout.CENTER);
+        
     }
 }

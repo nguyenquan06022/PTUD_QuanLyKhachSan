@@ -154,11 +154,35 @@ public class PhieuDatPhong_dao {
                 long minutes = duration.toMinutes() % 60;
                 String thoiGianConLai = days + " Ngày " + hours + " Giờ " + minutes + " Phút "; 
                 
-                itemphong = new itemPhong(maPhong ,tang,trangThai,hoTen, tenLP, thoiGianConLai);
+                itemphong = new itemPhong(maPhong ,tang,trangThai,hoTen, tenLP, thoiGianConLai, sdt);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return itemphong;
+    }
+    
+    public String getThongTinForNhanPhong(String requestItem, String maPhong) {
+    	String res = "";
+    	Connection connection = database.getInstance().getConnection();
+        try {
+            String sql = "select ? from PhieuDatPhong pdp \r\n"
+            		+ "join ChiTietHoaDonPhong cthdp on pdp.MaPhieuDatPhong = cthdp.MaPhieuDatPhong\r\n"
+            		+ "where MaPhong = ?";
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, requestItem);
+            stmt.setString(2, maPhong);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+            	res = rs.getString(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        System.out.println(res);
+        
+    	return res;
     }
 }
