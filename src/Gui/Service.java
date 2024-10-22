@@ -34,6 +34,7 @@ public class Service extends JPanel implements ActionListener, MouseListener{
 	private JButton btnTimKiem;
 	private int luaChon = 0;
 	private int row = -1;
+	private JComboBox<String> trangThai;
     
     public ArrayList<DichVu> danhSachDichVu(){
 		return dichVu_dao.danhSachDichVu();
@@ -43,14 +44,14 @@ public class Service extends JPanel implements ActionListener, MouseListener{
         tfMaDichVu.setEditable(false);
         tfTenDichVu.setEditable(false);
         tfDonGia.setEditable(false);
-        tfTrangThai.setEditable(false);
+//        tfTrangThai.setEditable(false);
 	}
 	
 	public void moTruongThem () {
 		tfMaDichVu.setEditable(false);
         tfTenDichVu.setEditable(true);
         tfDonGia.setEditable(true);
-        tfTrangThai.setEditable(false);
+//        tfTrangThai.setEditable(false);
 	}
 	
 	public void moTruongSua (){
@@ -76,21 +77,22 @@ public class Service extends JPanel implements ActionListener, MouseListener{
     	tfMaDichVu.setText("");
         tfTenDichVu.setText("");
         tfDonGia.setText("");
-        tfTrangThai.setText("");
+//        tfTrangThai.setText("");
+        trangThai.setSelectedIndex(0);
     }
     
     public void hienDichVu (DichVu a) {
     	tfMaDichVu.setText(a.getMaDV());
         tfTenDichVu.setText(a.getTenDV());
         tfDonGia.setText(String.valueOf(a.getDonGia()));
-        tfTrangThai.setText(a.getTrangThaiDichVu());
+//        tfTrangThai.setText(a.getTrangThaiDichVu());
     }
     
     public DichVu taoDichVu() {
     	return new DichVu(tfMaDichVu.getText(),
     						tfTenDichVu.getText(),
     						Double.parseDouble(tfDonGia.getText()),
-    						tfTrangThai.getText());
+    						trangThai.getSelectedItem().toString());
     }
 
     public Service() {
@@ -165,7 +167,8 @@ public class Service extends JPanel implements ActionListener, MouseListener{
         tfMaDichVu.setEditable(false);
         tfMaDichVu.setFont(new Font("Tahoma", Font.PLAIN, 15));
         panel_6.add(tfMaDichVu);
-        tfMaDichVu.setColumns(10);
+//        tfMaDichVu.setColumns(10);
+        tfMaDichVu.setPreferredSize(new Dimension(250, 25));
 
         JPanel panel_1 = new JPanel();
         infor.add(panel_1);
@@ -183,7 +186,7 @@ public class Service extends JPanel implements ActionListener, MouseListener{
         tfTenDichVu = new JTextField();
         tfTenDichVu.setFont(new Font("Tahoma", Font.PLAIN, 15));
         panel_7.add(tfTenDichVu);
-        tfTenDichVu.setColumns(10);
+        tfTenDichVu.setPreferredSize(new Dimension(250, 25));
 
         JPanel panel_2 = new JPanel();
         infor.add(panel_2);
@@ -201,7 +204,7 @@ public class Service extends JPanel implements ActionListener, MouseListener{
         tfDonGia = new JTextField();
         tfDonGia.setFont(new Font("Tahoma", Font.PLAIN, 15));
         panel_8.add(tfDonGia);
-        tfDonGia.setColumns(10);
+        tfDonGia.setPreferredSize(new Dimension(250, 25));
 
         JPanel panel_3 = new JPanel();
         infor.add(panel_3);
@@ -216,10 +219,17 @@ public class Service extends JPanel implements ActionListener, MouseListener{
         JPanel panel_9 = new JPanel();
         panel_3.add(panel_9);
 
-        tfTrangThai = new JTextField();
-        tfTrangThai.setFont(new Font("Tahoma", Font.PLAIN, 15));
-        panel_9.add(tfTrangThai);
-        tfTrangThai.setColumns(10);
+//        tfTrangThai = new JTextField();
+//        tfTrangThai.setFont(new Font("Tahoma", Font.PLAIN, 15));
+//        panel_9.add(tfTrangThai);
+//        tfTrangThai.setColumns(10);
+        
+        trangThai = new JComboBox<String>();
+        trangThai.addItem("Đang bán");
+        trangThai.addItem("Ngừng bán");
+        trangThai.setPreferredSize(new Dimension(250, 25));
+        trangThai.setFont(new Font("Tahoma", Font.PLAIN, 15));
+        panel_9.add(trangThai);
 
         JPanel panel_10 = new JPanel();
         infor.add(panel_10);
@@ -319,7 +329,14 @@ public class Service extends JPanel implements ActionListener, MouseListener{
 		tfMaDichVu.setText(model.getValueAt(row, 0).toString());
 		tfTenDichVu.setText(model.getValueAt(row, 1).toString());
 		tfDonGia.setText(model.getValueAt(row, 2).toString());
-		tfTrangThai.setText(model.getValueAt(row, 3).toString());
+//		tfTrangThai.setText(model.getValueAt(row, 3).toString());
+		String trangThaiValue = model.getValueAt(row, 3).toString();
+	    
+	    if (trangThaiValue.equals("Đang bán")) {
+	        trangThai.setSelectedIndex(0); // Chọn mục "Đang bán"
+	    } else {
+	        trangThai.setSelectedIndex(1); // Chọn mục "Ngừng bán"
+	    }
 	}
 
 	@Override
@@ -364,7 +381,7 @@ public class Service extends JPanel implements ActionListener, MouseListener{
 		if (btn.equals(btnThem)) {
 			xoaTrang();
 			moTruongThem();
-			tfTrangThai.setText("Đang sử dụng");
+//			tfTrangThai.setText("Đang sử dụng");
 			luaChon = 1;
 		}
 		if (btn.equals(btnSua)) {

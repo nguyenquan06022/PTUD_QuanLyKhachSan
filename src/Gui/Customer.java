@@ -36,6 +36,7 @@ public class Customer extends JPanel implements ActionListener, MouseListener{
 	private JButton btnHuy;
 	private int row = -1;
 	private int luaChon = 0;
+	private JComboBox<String> gioiTinh;
     
     public ArrayList<KhachHang> danhSachKhachHang(){
     	return khachHang_dao.danhSachKhachHang();
@@ -45,7 +46,6 @@ public class Customer extends JPanel implements ActionListener, MouseListener{
         tfMaKhachHang.setEditable(false);
         tfHoTen.setEditable(false);
         tfSoDienThoai.setEditable(false);
-        tfGioiTinh.setEditable(false);
         tfQuocTich.setEditable(false);
         tfDiemKhuyenMai.setEditable(false);
 	}
@@ -54,11 +54,12 @@ public class Customer extends JPanel implements ActionListener, MouseListener{
 		tfMaKhachHang.setEditable(false);
         tfHoTen.setEditable(true);
         tfSoDienThoai.setEditable(true);
-        tfGioiTinh.setEditable(true);
         tfQuocTich.setEditable(true);
         tfDiemKhuyenMai.setEditable(false);
+        tfHoTen.requestFocus();
 	}
 
+	//hien Bang
     public void hienBang() {
     	dsKH = danhSachKhachHang();
     	dsKH.forEach(x -> themDong(x));
@@ -77,18 +78,9 @@ public class Customer extends JPanel implements ActionListener, MouseListener{
     	tfMaKhachHang.setText("");
         tfHoTen.setText("");
         tfSoDienThoai.setText("");
-        tfGioiTinh.setText("");
+        gioiTinh.setSelectedIndex(0);
         tfQuocTich.setText("");
         tfDiemKhuyenMai.setText("");
-    }
-    
-    public void hienKhachHang (KhachHang a) {
-    	tfMaKhachHang.setText(a.getMaKH());
-        tfHoTen.setText(a.getTenKH());
-        tfSoDienThoai.setText(a.getSoDT());
-        tfGioiTinh.setText(a.getGioiTinh()==1?"Nam":"Nữ");
-        tfQuocTich.setText(a.getQuocTich());
-        tfDiemKhuyenMai.setText(String.valueOf(a.getDiemKM()));
     }
 
     public Customer() {
@@ -165,7 +157,7 @@ public class Customer extends JPanel implements ActionListener, MouseListener{
         tfMaKhachHang.setEditable(false);
         tfMaKhachHang.setFont(new Font("Tahoma", Font.PLAIN, 15));
         panel_6.add(tfMaKhachHang);
-        tfMaKhachHang.setColumns(10);
+        tfMaKhachHang.setPreferredSize(new Dimension(250, 25));
 
         JPanel panel_1 = new JPanel();
         infor.add(panel_1);
@@ -186,7 +178,7 @@ public class Customer extends JPanel implements ActionListener, MouseListener{
         tfHoTen = new JTextField();
         tfHoTen.setFont(new Font("Tahoma", Font.PLAIN, 15));
         panel_7.add(tfHoTen);
-        tfHoTen.setColumns(10);
+        tfHoTen.setPreferredSize(new Dimension(250, 25));
 
         JPanel panel_2 = new JPanel();
         infor.add(panel_2);
@@ -207,7 +199,7 @@ public class Customer extends JPanel implements ActionListener, MouseListener{
         tfSoDienThoai = new JTextField();
         tfSoDienThoai.setFont(new Font("Tahoma", Font.PLAIN, 15));
         panel_8.add(tfSoDienThoai);
-        tfSoDienThoai.setColumns(10);
+        tfSoDienThoai.setPreferredSize(new Dimension(250, 25));
 
         JPanel panel_3 = new JPanel();
         infor.add(panel_3);
@@ -225,10 +217,12 @@ public class Customer extends JPanel implements ActionListener, MouseListener{
         JPanel panel_9 = new JPanel();
         panel_3.add(panel_9);
 
-        tfGioiTinh = new JTextField();
-        tfGioiTinh.setFont(new Font("Tahoma", Font.PLAIN, 15));
-        panel_9.add(tfGioiTinh);
-        tfGioiTinh.setColumns(10);
+        gioiTinh = new JComboBox<String>();
+        gioiTinh.addItem("Nam");
+        gioiTinh.addItem("Nữ");
+        gioiTinh.setEditable(false);
+        panel_9.add(gioiTinh);
+        gioiTinh.setPreferredSize(new Dimension(250, 25));
 
         JPanel panel_4 = new JPanel();
         infor.add(panel_4);
@@ -249,7 +243,7 @@ public class Customer extends JPanel implements ActionListener, MouseListener{
         tfQuocTich = new JTextField();
         tfQuocTich.setFont(new Font("Tahoma", Font.PLAIN, 15));
         panel_12.add(tfQuocTich);
-        tfQuocTich.setColumns(10);
+        tfQuocTich.setPreferredSize(new Dimension(250, 25));
 
         JPanel panel_5 = new JPanel();
         infor.add(panel_5);
@@ -269,7 +263,7 @@ public class Customer extends JPanel implements ActionListener, MouseListener{
         tfDiemKhuyenMai = new JTextField();
         tfDiemKhuyenMai.setFont(new Font("Tahoma", Font.PLAIN, 15));
         panel_13.add(tfDiemKhuyenMai);
-        tfDiemKhuyenMai.setColumns(10);
+        tfDiemKhuyenMai.setPreferredSize(new Dimension(250, 25));
         
         JPanel panel_10 = new JPanel();
         infor.add(panel_10);
@@ -369,10 +363,17 @@ public class Customer extends JPanel implements ActionListener, MouseListener{
 		int row = table.getSelectedRow();
 		tfMaKhachHang.setText(model.getValueAt(row, 0).toString());
 		tfHoTen.setText(model.getValueAt(row, 1).toString());
-		tfGioiTinh.setText(model.getValueAt(row, 3).toString());
 		tfSoDienThoai.setText(model.getValueAt(row, 2).toString());
 		tfQuocTich.setText(model.getValueAt(row, 4).toString());
 		tfDiemKhuyenMai.setText(model.getValueAt(row, 5).toString());
+		String gt = model.getValueAt(row, 3).toString();
+	    
+	    // So sánh giá trị và thay đổi ComboBox tương ứng
+	    if (gt.equals("Nam")) {
+	        gioiTinh.setSelectedIndex(0); // Chọn mục "Đang bán"
+	    } else {
+	        gioiTinh.setSelectedIndex(1); // Chọn mục "Ngừng bán"
+	    }
 	}
 
 	@Override
@@ -400,10 +401,11 @@ public class Customer extends JPanel implements ActionListener, MouseListener{
 	}
 
 	public KhachHang taoKhachHang() {
+		String gt = gioiTinh.getSelectedItem().toString();
     	return new KhachHang(tfMaKhachHang.getText(),
 							tfHoTen.getText(),
 							tfSoDienThoai.getText(),
-							tfGioiTinh.getText().equals("Nam")?1:0,
+							gt.equals("Nam")?1:0,
 							tfQuocTich.getText(),
 							tfDiemKhuyenMai.getText().length()>0?Long.parseLong(tfDiemKhuyenMai.getText()):0);
     }

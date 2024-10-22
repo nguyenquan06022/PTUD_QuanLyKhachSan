@@ -14,7 +14,7 @@ import javax.swing.JTextField;
 import javax.swing.JButton;
 import java.awt.Color;
 
-public class NhanPhong extends JFrame implements ActionListener{
+public class TraPhong extends JFrame implements ActionListener{
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
@@ -26,10 +26,10 @@ public class NhanPhong extends JFrame implements ActionListener{
 	private JTextField textField_5;
 	private JTextField textField_6;
 	private JTextField textField_7;
-	private JButton btnNhanPhong;
+	private JButton btnTraPhong;
 	private JButton btnHuy;
 
-	public NhanPhong(String maPhong, String tang,String loaiPhong, String tenKhachHang, String sdt, String thoiGianDat, String thoiGianNhan, String thoiGianTra, String soLuongNguoiThue, String hinhThucThue) {
+	public TraPhong(String maPhong, String tang,String loaiPhong, String tenKhachHang, String sdt, String thoiGianDat, String thoiGianNhan, String thoiGianTra, String soLuongNguoiThue, String hinhThucThue) {
 		setTitle("Xác nhận nhận phòng");
 		setSize(800,600);
 		setLocationRelativeTo(null);
@@ -176,17 +176,17 @@ public class NhanPhong extends JFrame implements ActionListener{
 		JPanel panel_12 = new JPanel();
 		contentPane.add(panel_12, BorderLayout.SOUTH);
 		
-		btnNhanPhong = new JButton("Nhận phòng");
-		btnNhanPhong.setForeground(Color.WHITE);
-		btnNhanPhong.setBackground(new Color(0, 153, 255));
-		btnNhanPhong.setFont(new Font("Tahoma", Font.BOLD, 15));
-		panel_12.add(btnNhanPhong);
+		btnTraPhong = new JButton("Nhận phòng");
+		btnTraPhong.setForeground(Color.WHITE);
+		btnTraPhong.setBackground(new Color(0, 153, 255));
+		btnTraPhong.setFont(new Font("Tahoma", Font.BOLD, 15));
+		panel_12.add(btnTraPhong);
 		
 		btnHuy = new JButton("Hủy");
 		btnHuy.setFont(new Font("Tahoma", Font.BOLD, 15));
 		panel_12.add(btnHuy);
 		
-		btnNhanPhong.addActionListener(this);
+		btnTraPhong.addActionListener(this);
 		btnHuy.addActionListener(this);
 		setVisible(true);
 	}
@@ -194,7 +194,7 @@ public class NhanPhong extends JFrame implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
-		if(o.equals(btnNhanPhong)) {
+		if(o.equals(btnTraPhong)) {
 			
 		}else if(o.equals(btnHuy)) {
 			dispose();

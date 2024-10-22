@@ -9,9 +9,11 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.sql.Timestamp;
 
 import ConnectDB.database;
 import Entity.KhachHang;
@@ -163,26 +165,28 @@ public class PhieuDatPhong_dao {
     }
     
     public String getThongTinForNhanPhong(String requestItem, String maPhong) {
-    	String res = "";
-    	Connection connection = database.getInstance().getConnection();
+        String res = "";
+        Connection connection = database.getInstance().getConnection();
         try {
-            String sql = "select ? from PhieuDatPhong pdp \r\n"
-            		+ "join ChiTietHoaDonPhong cthdp on pdp.MaPhieuDatPhong = cthdp.MaPhieuDatPhong\r\n"
-            		+ "where MaPhong = ?";
+            String sql = "select " + requestItem + " from PhieuDatPhong pdp \r\n"
+                        + "join ChiTietHoaDonPhong cthdp on pdp.MaPhieuDatPhong = cthdp.MaPhieuDatPhong\r\n"
+                        + "where MaPhong = ?";
             PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setString(1, requestItem);
-            stmt.setString(2, maPhong);
+            stmt.setString(1, maPhong);
             ResultSet rs = stmt.executeQuery();
-            
+
             if (rs.next()) {
-            	res = rs.getString(1);
+                if (requestItem.equals("ThoiGianDat") || requestItem.equals("ThoiGianNhan") || requestItem.equals("ThoiGianTra")) {
+                    Timestamp timestamp = rs.getTimestamp(1);
+                    SimpleDateFormat targetFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                    res = targetFormat.format(new Date(timestamp.getTime()));
+                } else {
+                    res = rs.getString(1);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
-        System.out.println(res);
-        
-    	return res;
+        return res;
     }
 }

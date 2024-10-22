@@ -99,7 +99,7 @@ public class Home extends JPanel {
         	                		String thoiGianNhan = phieuDatPhongDao.getThongTinForNhanPhong("ThoiGianNhan", item.getMaPhong());
         	                		String thoiGianTra = phieuDatPhongDao.getThongTinForNhanPhong("ThoiGianTra", item.getMaPhong());
         	                		String soLuongNguoi = phieuDatPhongDao.getThongTinForNhanPhong("SoLuongNguoi", item.getMaPhong());
-        	                		String hinhThucThue = phieuDatPhongDao.getThongTinForNhanPhong("Cach Thue", item.getMaPhong());
+        	                		String hinhThucThue = phieuDatPhongDao.getThongTinForNhanPhong("CachThue", item.getMaPhong());
         	                		new NhanPhong(item.getMaPhong(),item.getTang(),item.getLoaiPhong(),item.getTenKhachHang(),item.getSdt(),thoiGianDat,thoiGianNhan,thoiGianTra,soLuongNguoi,hinhThucThue);
         	                	}
         	                	else if(item.getTrangThai().equals("Đang thuê")) {
@@ -261,7 +261,7 @@ public class Home extends JPanel {
         	                		String thoiGianNhan = phieuDatPhongDao.getThongTinForNhanPhong("ThoiGianNhan", itemphong.getMaPhong());
         	                		String thoiGianTra = phieuDatPhongDao.getThongTinForNhanPhong("ThoiGianTra", itemphong.getMaPhong());
         	                		String soLuongNguoi = phieuDatPhongDao.getThongTinForNhanPhong("SoLuongNguoi", itemphong.getMaPhong());
-        	                		String hinhThucThue = phieuDatPhongDao.getThongTinForNhanPhong("Cach Thue", itemphong.getMaPhong());
+        	                		String hinhThucThue = phieuDatPhongDao.getThongTinForNhanPhong("CachThue", itemphong.getMaPhong());
         	                		new NhanPhong(itemphong.getMaPhong(),itemphong.getTang(),itemphong.getLoaiPhong(),itemphong.getTenKhachHang(),itemphong.getSdt(),thoiGianDat,thoiGianNhan,thoiGianTra,soLuongNguoi,hinhThucThue);
         	                	}
         	                	else if(itemphong.getTrangThai().equals("Đang thuê")) {
@@ -349,7 +349,7 @@ public class Home extends JPanel {
                 		String thoiGianNhan = phieuDatPhongDao.getThongTinForNhanPhong("ThoiGianNhan", itemphong.getMaPhong());
                 		String thoiGianTra = phieuDatPhongDao.getThongTinForNhanPhong("ThoiGianTra", itemphong.getMaPhong());
                 		String soLuongNguoi = phieuDatPhongDao.getThongTinForNhanPhong("SoLuongNguoi", itemphong.getMaPhong());
-                		String hinhThucThue = phieuDatPhongDao.getThongTinForNhanPhong("Cach Thue", itemphong.getMaPhong());
+                		String hinhThucThue = phieuDatPhongDao.getThongTinForNhanPhong("CachThue", itemphong.getMaPhong());
                 		new NhanPhong(itemphong.getMaPhong(),itemphong.getTang(),itemphong.getLoaiPhong(),itemphong.getTenKhachHang(),itemphong.getSdt(),thoiGianDat,thoiGianNhan,thoiGianTra,soLuongNguoi,hinhThucThue);
                 	}
                 	else if(itemphong.getTrangThai().equals("Đang thuê")) {
